@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+      <link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+        <title>
+            {% block title %} 
+            {% endblock %}
+        </title>
+        {% load static %}
+        {% load django_bootstrap5 %}
+        {% bootstrap_css %}
+        {% bootstrap_messages %}
+        {% bootstrap_javascript %}
+        <script src="https://kit.fontawesome.com/17eac9c9ad.js" crossorigin="anonymous"> </script>
+        <body>
+            <style>
+                #intro{
+                  background-image: url('{% static "precisionagri/images/background.jpg" %}');
+                }
+              </style>
+                <div style="background-position: center; background-repeat: no-repeat;
+                background-size: cover;" id="intro">
+                  <div class="container-fluid" id="cont" style = "background-color: rgb(63, 24, 24); opacity: 0.85;">
+            {% block content %}
+            {% endblock %}
+                  </div>
+                </div>
+                <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+                <script>
+                   AOS.init();
+                </script>
+        </body>
+    </head>
+</html>

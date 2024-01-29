@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    {% load static %}
+    {% load django_bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_messages %}
+    {% bootstrap_javascript %}
+    <head>
+        <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+        <link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+        <title>
+            {% block title %} 
+            {% endblock %}
+        </title>
+    </head>
+    <script src="https://kit.fontawesome.com/17eac9c9ad.js" crossorigin="anonymous"> </script>
+    <body>
+        <style>
+                #intro{
+                  background-image: url('{% static "precisionagri/images/background.jpg" %}');
+                }
+              </style>
+                <div style="background-position: center; background-repeat: no-repeat;
+                background-size: cover;" id="intro">
+                    <div class="container-fluid" id="cont" style = "background-color: rgb(63, 24, 24); opacity: 0.85;">
+                        <nav class="navbar navbar-dark">
+                            <div class="container-fluid">
+                            <button class="navbar-toggler
+                            animate__animated animate__backInUp animate__delay-2s" style="--animate-duration: 1.5s;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBackdrop" aria-controls="offcanvasWithBackdrop">
+                                <span class="navbar-toggler-icon"></span>
+                            </button>
+                            </div>
+                            <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasWithBackdrop" aria-labelledby="offcanvasWithBackdropLabel">
+                                <div class="offcanvas-header">
+                                    <h5 class="offcanvas-title fs-5" id="offcanvasWithBackdropLabel">PAS</h5>
+                                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                                </div>
+                                <div class="offcanvas-body">
+                                    <a href="{% url 'home' %}" class="text-dark fs-6" style="text-decoration:none;">Home</a> <br> <br>
+                                    <a href="{% url 'profile' %}" class="text-dark fs-6" style="text-decoration:none;">Profile</a> <br> <br>                                  
+                                    <a href="{% url 'activity' %}" class="text-dark fs-6" style="text-decoration:none;">Activity</a> <br> <br>
+                                    <a href="{% url 'form' %}" class="text-dark fs-6" style="text-decoration:none;">Find Crop</a> <br> <br>
+                                    <a href="{% url 'search' %}" class="text-dark fs-6" style="text-decoration:none;">Search NPK</a> <br> <br>
+                                    <a href="{% url 'logout' %}" class="text-dark fs-6" style="text-decoration:none;">Logout</a>
+                                </div>
+                            </div>
+                        </nav>
+                        {% block content %}
+                        {% endblock %}
+                    </div>
+                </div>
+                <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+                <script>
+                   AOS.init();
+                </script>
+        </body>
+</html>

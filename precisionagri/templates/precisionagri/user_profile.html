@@ -1,0 +1,73 @@
+{% extends 'precisionagri/index.html' %}
+{% block title %} PAS user profile {% endblock title %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_messages %}
+{% bootstrap_javascript %}
+{% block content %}
+<section class="vh-100">
+  <div class="container py-5">
+    <div class="row d-flex justify-content-center align-items-center">
+      <div class="col col-lg-10 mb-5 mb-lg-0">
+        <div class="card mb-5" style="border:1.5px solid; border-color:#1C0D00;box-shadow: 1px 1px 10px 1px rgb(133, 97, 97);"
+        data-aos="zoom-in"data-aos-duration="1500">
+          <div class="row g-0">
+            <div class="col-md-4 text-center text-white" style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem; background-color:#0A1027;">
+              {% if img %}
+              <a href="{% url 'img' %}"><img src="{{img.url}}" alt="{{usernamename}}" class="img-fluid my-5 rounded-circle" style="width: 50%;height:55%;"
+              data-aos="flip-left" data-aos-duration="1500"></a>
+              {% else %}
+              <a href="{% url 'img' %}"><img src="{% static 'precisionagri/images/profile.png' %}" alt="{{usernamename}}" class="img-fluid my-5 rounded-circle" style="width: 50%;height:55%;"
+              data-aos="flip-left" data-aos-duration="1500"></a>
+              {% endif %}
+              <h5 data-aos="fade-up"data-aos-duration="1500">{{name}}</h5>
+              <a href="{% url 'edit' %}" class="far fa-edit mb-5"> </a>
+            </div>
+            <div class="col-md-8">
+              <div class="card-body p-4">
+                <h6>Information</h6>
+                <hr class="mt-0 mb-4">
+                <div class="row pt-1">
+                  <div class="col-6 mb-3" data-aos="fade-right"data-aos-duration="1500">
+                    <h6>Email</h6>
+                    <p class="text-muted">{{email}}</p>
+                  </div>
+                  <div class="col-6 mb-3" data-aos="fade-left"data-aos-duration="1500">
+                    <h6>State</h6>
+                    <p class="text-muted">{{state}}</p>
+                  </div>
+                  <div class="col-6 mb-3" data-aos="fade-right"data-aos-duration="1500">
+                    <h6>District</h6>
+                    <p class="text-muted">{{district}}</p>
+                  </div>
+                  <div class="col-6 mb-3" data-aos="fade-left"data-aos-duration="1500">
+                    <h6>Native</h6>
+                    <p class="text-muted">{{native}}</p>
+                  </div>
+                  <div class="col-6 mb-3" data-aos="fade-right"data-aos-duration="1500">
+                    <h6>Phone</h6>
+                    <p class="text-muted">{{mobile}}</p>
+                  </div>
+                  <div class="col-6 mb-3" data-aos="fade-left"data-aos-duration="1500">
+                    <h6>Account Created</h6>
+                    <p class="text-muted">{{join}}</p>
+                  </div>
+                  <div class="col mb-3" data-aos="fade-right"data-aos-duration="1500">
+                    <h6>Account Updated</h6>
+                    <p class="text-muted">{{update}}</p>
+                  </div>
+                  <div class="col mb-3">
+                    <h6>Last Login</h6>
+                    <p class="text-muted">{{login}}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

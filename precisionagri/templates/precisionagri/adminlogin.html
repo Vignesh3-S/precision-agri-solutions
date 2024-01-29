@@ -1,0 +1,42 @@
+{% extends 'precisionagri/homeindex.html' %}
+{% block title %} PAS adminlogin {% endblock %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_messages %}
+{% bootstrap_javascript %}
+{% block content %}
+<style>
+    #admin{
+      background-image: url('{% static "precisionagri/images/adminbg.jpg" %}');
+    }
+  </style>
+<div class="container vh-100">
+    <div class="row justify-content-center"> 
+        <div class="col mt-5">
+            <div class="container">
+                <div class="row justify-content-center mt-5" style="border:1.5px solid; border-color:black;box-shadow: 1px 1px 10px 1px black;"> 
+                    <div class="col-md-5" id="admin" style="background-position: center; background-repeat: no-repeat;
+                    background-size: cover;"></div>
+                    <div class="col-md-7 mt-5">
+                        <h3 class="text-center text-white" style="font-family: cursive;">Welcome Admin</h3> <br><br>
+                        <form class="row g-3 mb-5" method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {% bootstrap_form forms %}
+                            </div>
+                            <div class="d-grid gap-2 col-6 mx-auto">
+                                <button type="submit" class="btn btn-success">Submit</button>
+                                <button type="reset" class="btn btn-secondary">Reset</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div> 
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+

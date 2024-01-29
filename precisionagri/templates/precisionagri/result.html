@@ -1,0 +1,71 @@
+{% extends 'precisionagri/index.html' %}
+{% block title %} PAS crop result {% endblock title %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_messages %}
+{% bootstrap_javascript %}
+{% block content %}
+    <style>
+        #bg{
+            background-image:  url('{% static "precisionagri/images/" %}{{crop}}.jpg');
+        }
+    </style>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-9 mt-2">
+                <div class="row justify-content-center"  data-aos="flip-left" data-aos-duration="1500">
+                    <div class="col-8 mt-2 mb-2" id="bg" style="border:1.5px solid; border-color:rgb(185, 183, 201);box-shadow: 1px 1px 10px 1px;
+                        background-position: center;background-repeat: no-repeat;background-size: cover; height:300px;margin-right:1%;margin-left:1%;"
+                        data-aos="flip-up" data-aos-duration="1500">
+                    </div>
+                <div class="row justify-content-center">
+                    <div class="col mb-2">
+                        <table class="table table-secondary mt-2 mb-2">
+                            <thead>
+                              <tr>
+                                <th scope="col">Parameters</th>
+                                <th scope="col">Values and Results</th>
+                              </tr>
+                            </thead>
+                            <tbody data-aos="fade-up" data-aos-duration="1500">
+                              <tr>
+                                <th scope="row">Nitrogen Value</th>
+                                <td>{{n}}</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Phosphorus Value</th>
+                                <td>{{p}}</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Potassium Value</th>
+                                <td>{{k}}</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Temperature Value</th>
+                                <td>{{t}}</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Ph Value</th>
+                                <td>{{ph}}</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Humidity Value</th>
+                                <td>{{h}}</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Rainfall Value</th>
+                                <td>{{r}}</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Crop</th>
+                                <td>{{crop}}</td>
+                              </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

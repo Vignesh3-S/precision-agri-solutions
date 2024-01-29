@@ -1,0 +1,39 @@
+{% extends 'precisionagri/index.html' %}
+{% block title %} PAS user activity {% endblock %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_messages %}
+{% bootstrap_javascript %}
+{% block content %}
+<section class="vh-100">
+    <div class="container animate__animated animate__zoomInRight" style="--animate-duration: 1.5s;">
+      <table class="table table-hover table-responsive text-center" style="background-color: rgb(182, 195, 207);" data-aos="zoom-out-up" data-aos-duration="1500">
+        <thead class="animate__animated animate__fadeInTopLeft animate__delay-1s">
+          <tr>
+            <th scope="col">Date & Time</th>
+            <th scope="col">Activity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if data1 %}
+            {% for i in data1 %}
+              <tr class="animate__animated animate__fadeInTopRight animate__delay-1s">
+                <td style="text-decoration: none;color: black;">{{i.date}}</td>
+                <td style="text-decoration: none;color: black;">Look for Crop</td>
+              </tr>
+            {% endfor %}
+          {% endif %}
+          {% if data2 %}
+            {% for i in data2 %}
+              <tr class="animate__animated animate__fadeInLeftBig animate__delay-1s">
+                <td style="text-decoration: none;color: black;">{{i.date}}</td>
+                <td style="text-decoration: none;color: black;">Search NPK</td>
+              </tr>
+            {% endfor %}
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+</section>
+{% endblock %}
