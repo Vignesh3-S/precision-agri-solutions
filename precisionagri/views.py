@@ -20,6 +20,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 # home part
 def Home(request):
+    print(settings.BASE_DIR)
     if request.method == 'POST':
        form = Queryform(request.POST)
        name = request.POST['Name']
