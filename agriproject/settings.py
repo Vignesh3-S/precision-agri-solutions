@@ -93,27 +93,15 @@ RECAPTCHA_PRIVATE_KEY= "6LcKsNglAAAAAJHqZJaze5nzZWv_IUgccHGf0_Hg"
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-'''
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'railway',
         'USER': 'root',
-        'PASSWORD':'4bdcDCbgf35ggde45B4C5C4BcDBD1gE-', 
-        'HOST': 'monorail.proxy.rlwy.net',
-        'PORT': '38100',
-    }
-}
-'''
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'pasdb',
-        'USER': 'root',
-        'PASSWORD':'Viki@ml36', 
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'PASSWORD':'bEc5CA2EbCaGAfgB5HdA3c5e1Db3422F', 
+        'HOST': 'viaduct.proxy.rlwy.net',
+        'PORT': '10449',
     }
 }
 # Password validation
@@ -196,7 +184,7 @@ ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 3
 ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 300
-ACCOUNT_UNIQUE_EMAIL = True
+#ACCOUNT_UNIQUE_EMAIL = True
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'METHOD': 'oauth2',
