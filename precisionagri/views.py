@@ -12,9 +12,6 @@ from django.contrib.sites.shortcuts import get_current_site
 import os
 import random
 import string
-import phonenumbers
-from twilio.rest import Client
-from agriproject import settings
 from datetime import datetime
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
