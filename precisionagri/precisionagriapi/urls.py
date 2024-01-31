@@ -19,5 +19,5 @@ from . import views
 
 
 urlpatterns = [
-    path('getapicrop/<str:token>/<str:email>/',views.CropApi.as_view(),name = 'getapicrop'),
+    path('getapicrop/<str:email>/<str:token>/',views.CropApi.as_view(),name = 'getapicrop'),
 ]

@@ -30,8 +30,7 @@ urlpatterns = [
     path('useredit/',views.User_edit,name = 'edit'),
     path('userlogout/',views.User_logout,name = 'logout'),
     path('useractivity/',views.user_Activity,name = 'activity'),
-    path('otp/<str:mobile>/<str:email>/', views.generateotp, name='otp'),
-    path('otp/', views.Verifyotp, name='verifyotp'),
+    path('otp/<str:enc_email>/', views.otp, name='otp'),
     path('getotp/', views.Getotp, name='latergetotp'),
     path('getapikey/', views.Getapi, name='getapikey'),
 ]

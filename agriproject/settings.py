@@ -93,7 +93,7 @@ RECAPTCHA_PRIVATE_KEY= "6LcKsNglAAAAAJHqZJaze5nzZWv_IUgccHGf0_Hg"
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -102,6 +102,18 @@ DATABASES = {
         'PASSWORD':'4bdcDCbgf35ggde45B4C5C4BcDBD1gE-', 
         'HOST': 'monorail.proxy.rlwy.net',
         'PORT': '38100',
+    }
+}
+'''
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'pasdb',
+        'USER': 'root',
+        'PASSWORD':'Viki@ml36', 
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 # Password validation
@@ -209,7 +221,4 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-# twilio credentials part
-TWILIO_ACCOUNT_SID = 'AC4f5299ff9ddabce3f04fe02d195ca8a6'
-TWILIO_AUTH_TOKEN = '9e5b95bd3107d32744010b81444ee1bc'
-TWILIO_PHONE_NUMBER = '+18622440340'
+

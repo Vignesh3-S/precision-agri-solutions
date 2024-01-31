@@ -20,7 +20,6 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 # home part
 def Home(request):
-    print(settings.BASE_DIR)
     if request.method == 'POST':
        form = Queryform(request.POST)
        name = request.POST['Name']
@@ -63,23 +62,56 @@ def Signup(request):
             user.set_password(recv_password)
             user.is_PAS_account = True
             user.save()
-            
-            try:
-                otp=request.POST["otp"]
-            except:
-                number_prefix = "+"+ str(phonenumbers.country_code_for_region(recv_mobile_0))
-                mobile = number_prefix + check_mobile
-                getotp = generateotp(request,mobile,email)
-                if getotp:
-                    messages.success(request,"Enter the OTP that has been sent to your mobile number.")
-                    return render(request,'precisionagri/signup.html',{'laterotp':True})
-                else:
-                    return redirect(reverse('signup',messages.error(request,"Try again !")),permanent=True)
-            return redirect(reverse('signup',messages.success(request,'Successfully Created')),permanent=True)
+            encode_email = urlsafe_base64_encode(force_bytes(email))
+            return redirect('otp',encode_email,permanent=True)
         else:
             error = form.errors 
             return redirect(reverse('signup',messages.error(request,error)),permanent=True)
     return render(request,'precisionagri/signup.html',{'form':Signupform})
+
+# Generate otp
+def otp(request,enc_email):
+    decrypt_email =  urlsafe_base64_decode(force_str(enc_email))
+    email = decrypt_email.decode()
+    if request.method == "GET":
+        otp = str(random.randint(100000, 999999))
+        if otp:
+            user = User.objects.get(email=email)
+            user.otp = otp
+            user.save()
+            message =f'Hello this is from Precision Agriculture Solutions. This is your otp {otp}.'
+            send_mail('One Time Password',message,'brsapp33@gmail.com',[email],fail_silently=False)
+            messages.success(request,'Enter the OTP sent to your email.')
+            return render(request,'precisionagri/otp.html')
+        #except:
+         #   return redirect(reverse('signup',messages.error(request,'OTP generate error')),permanent=True)
+    if request.method == "POST":
+        otp = request.POST['otp']
+        user = User.objects.get(email=email)
+        if user.otp == otp:
+            user.is_account_verified = True
+            user.save()
+            return redirect(reverse('signin',messages.success(request,'Verifiction Successful')),permanent=True)
+        else:
+            return redirect(reverse('signup',messages.error(request,'Invalid OTP')),permanent=True)
+# Later otp verifiction
+def Getotp(request):
+    if request.method=='POST':
+        form=Emailform(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            user = User.objects.get(email = email)
+            if not user.is_PAS_account:
+                return redirect(reverse('signup',messages.info(request,"Google, Facebook accounts not need to be verify.")))
+            if not user.is_account_verified:
+                encode_email = urlsafe_base64_encode(force_bytes(email))
+                return redirect('otp',encode_email,permanent=True)
+            else:
+                return redirect(reverse('home',messages.info(request,"This account already verified.")))
+        else:
+            error = form.errors
+            return redirect(reverse('latergetotp',messages.error(request,error)))
+    return render(request,'precisionagri/pwdchange.html',{'form2':Emailform})
 
 # mobile number validate
 def Mobile_validate(request,mobile):
@@ -114,7 +146,6 @@ def Signin(request):
                     person = authenticate(request,email = useremail,password = userpwd)
                     if person is not None:
                         login(request,person)
-                        
                         if next :
                             return redirect(next,permanent=True)
                         if user.is_superuser:
@@ -338,62 +369,6 @@ def Password_change(request,value,time):
             messages.error(request,error)
     return render(request,'precisionagri/pwdchange.html',{'form':PasswordChangeForm})
 
-# Generate otp
-def generateotp(request,mobile,email):
-    otp = str(random.randint(100000, 999999))
-    client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-    message = client.messages.create(
-        body=f'Your OTP is: {otp}',
-        from_=settings.TWILIO_PHONE_NUMBER,
-        to= mobile
-    )
-    request.session['otp'] = otp
-    request.session['email'] = email
-    return True
-
-# otp verification
-def Verifyotp(request):
-    if request.method == 'POST':
-        otp=request.POST["otp"]
-        saved_otp = request.session.get('otp')
-        email = request.session.get('email')
-        if otp == saved_otp:
-            user = User.objects.get(email=email)
-            user.is_account_verified = True
-            user.save()
-            messages.success(request, "OTP verification successful")
-            return redirect('signin')
-        else:
-            messages.error(request,"Invalid OTP")
-            return render(request,'precisionagri/signup.html',{'laterotp':True})
-    else:
-        return render(request,'precisionagri/signup.html',{'laterotp':True})
-
-# Later otp verifiction
-def Getotp(request):
-    if request.method=='POST':
-        form=Emailform(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            user = User.objects.get(email = email)
-            if user.is_PAS_account == False:
-                return redirect(reverse('signup',messages.info(request,"Google, Facebook accounts not need to be verify.")))
-            else:
-                mobile = user.mobile
-            if user.is_account_verified == False:
-                getotp=generateotp(request,str(mobile),email)
-                if getotp:
-                    messages.success(request,"Enter the OTP that has been sent to your mobile number.")
-                    return render(request,'precisionagri/signup.html',{'laterotp':True})
-                else:
-                    return redirect(reverse('latergetotp',messages.error(request,"Try again !")))
-            else:
-                return redirect(reverse('home',messages.info(request,"This account already verified.")))
-        else:
-            error = form.errors
-            return redirect(reverse('latergetotp',messages.error(request,error)))
-    return render(request,'precisionagri/signup.html',{'form2':Emailform,'later':True})
-
 # user logout
 @login_required(login_url = 'signin')
 def User_logout(request):
@@ -402,15 +377,17 @@ def User_logout(request):
 
 @login_required(login_url = 'signin')
 def Getapi(request):
-    get_email=request.user.email
-    encode_email = urlsafe_base64_encode(force_bytes(get_email))
-    key = ''.join(random.choices(string.ascii_lowercase +string.digits, k=35))
-    apikey = f'{request.scheme}://{request.get_host()}/getapicrop/{key}/{encode_email}/'
-    try:
-        usercreate = ApiUser.objects.create(user=request.user,apikey=key,token_valid=True)
-        usercreate.save()
-        return render(request,'precisionagri/showapi.html',{'key':apikey,'name':request.user})
-    except:
-        return redirect(reverse('home',messages.info(request,"Already got Apikey")))
+    if request.method == "POST":
+        encode_email = urlsafe_base64_encode(force_bytes(request.user.email))
+        key = ''.join(random.choices(string.ascii_lowercase +string.digits, k=35))
+        apikey = f'{request.scheme}://{request.get_host()}/getapicrop/{encode_email}/'
+        try:
+            usercreate = ApiUser.objects.create(user=request.user,apikey=key,app_name=request.POST['app_name'],app_type=request.POST['app_type'],token_valid=True)
+            usercreate.save()
+            return render(request,'precisionagri/showapi.html',{'url':apikey,'token':key,'name':request.user})
+        except:
+            return redirect(reverse('home',messages.info(request,"Already got Apikey")))
+    if request.method == "GET":
+        return render(request,'precisionagri/apiform.html')
 
 
