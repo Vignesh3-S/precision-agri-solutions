@@ -29,7 +29,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now)
     date_updated = models.DateTimeField(auto_now=True,null=True)
     last_login = models.DateTimeField(verbose_name="Last login",null=True)
-    userimg = models.ImageField(verbose_name='User Image', upload_to="Userimages")
+    userimg = models.ImageField(verbose_name='User Image', upload_to="PASuserimages")
     is_PAS_account = models.BooleanField(default = False)
     is_account_verified = models.BooleanField(default = False)
     is_api_token_obtained = models.BooleanField(default = False)

@@ -49,6 +49,9 @@ INSTALLED_APPS = [
     # Restframework for creating api 
     'rest_framework', 
     'rest_framework.authtoken',
+    # cloudinary
+    'cloudinary_storage',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -97,11 +100,11 @@ RECAPTCHA_PRIVATE_KEY= "6LcKsNglAAAAAJHqZJaze5nzZWv_IUgccHGf0_Hg"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'railway',
-        'USER': 'root',
-        'PASSWORD':'bEc5CA2EbCaGAfgB5HdA3c5e1Db3422F', 
-        'HOST': 'viaduct.proxy.rlwy.net',
-        'PORT': '10449',
+        'NAME': 'defaultdb',
+        'USER': 'avnadmin',
+        'PASSWORD':'AVNS_9M2oXLUGleStPjCoWz0', 
+        'HOST': 'mysql-7e08941-pas-ver-1.a.aivencloud.com',
+        'PORT': '19446',
     }
 }
 # Password validation
@@ -141,9 +144,6 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT= BASE_DIR / 'static'
-MEDIA_URL = 'ml/'
-MEDIA_ROOT =  BASE_DIR / 'ml'
-MEDIA_DIRS = [MEDIA_ROOT]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
@@ -170,6 +170,17 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
+# cloudinary configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT =  BASE_DIR / 'media'
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dsbweip8p',
+    'API_KEY': '519142513189249',
+    'API_SECRET': 'SNTpMXn7osyKBUzWEYStwooA7Cg',
+}
 # credentials for google 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "17801722881-apjj45mlr6lr75t153i3p5t6dhe4v7k7.apps.googleusercontent.com"
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "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"

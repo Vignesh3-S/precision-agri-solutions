@@ -15,6 +15,11 @@ import string
 from datetime import datetime
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.password_validation import validate_password
+from django.core.validators import validate_email
+from agriproject.settings import AUTH_PASSWORD_VALIDATORS
+from django.core.exceptions import ValidationError
+
 # home part
 def Home(request):
     if request.method == 'POST':
@@ -51,6 +56,11 @@ def Signup(request):
              
             if not check_mobile:
                 return redirect('signup',permanent=True)
+            
+            try:
+               validate_password(recv_password,password_validators=AUTH_PASSWORD_VALIDATORS)
+            except ValidationError:
+                return redirect(reverse('signup',messages.error(request,ValidationError)),permanent=True)
             
             if recv_password != recv_confirm_password:
                 return redirect(reverse('signup',messages.error(request,'Password and Confirm Password mismatched.')),permanent=True)
@@ -132,7 +142,6 @@ def Signin(request):
             useremail = form.cleaned_data['email']
             userpwd = form.cleaned_data['password']
             next = request.POST['next']
-            print(next)
             try:
                 user = User.objects.get(email = useremail)                    
                 if not user.is_account_verified:
@@ -143,7 +152,7 @@ def Signin(request):
                     person = authenticate(request,email = useremail,password = userpwd)
                     if person is not None:
                         login(request,person)
-                        if next :
+                        if next:
                             return redirect(next,permanent=True)
                         if user.is_superuser:
                             return redirect('/pasadmin/',permanent=True)
@@ -216,7 +225,7 @@ def Img_change(request):
         if form.is_valid():
             user = User.objects.get(email = request.user.email)
             if user.userimg:
-                os.remove(user.userimg.path)
+                user.userimg.delete()
                 user.userimg = request.FILES['image']
                 user.save()
             else:
@@ -354,6 +363,10 @@ def Password_change(request,value,time):
         if form.is_valid():
             pwd = form.cleaned_data['password']
             confirm_pwd = form.cleaned_data['confirm_password']
+            try:
+               validate_password(pwd,password_validators=AUTH_PASSWORD_VALIDATORS)
+            except ValidationError:
+                return redirect(reverse('signup',messages.error(request,ValidationError)),permanent=True)
             if pwd != confirm_pwd:
                 messages.error(request,'Password and Confirm Password mismatched.')
             user = User.objects.get(email = str_decrypt_email)

@@ -5,9 +5,6 @@ from django.utils.translation import gettext_lazy as _
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
 from phonenumber_field.widgets import PhoneNumberPrefixWidget
-from django.contrib.auth.password_validation import validate_password
-from django.core.validators import validate_email
-
 
 #Crop form -- Recommend
 class CropRecommendform(forms.ModelForm):
@@ -34,7 +31,7 @@ class Searchform(forms.Form):
 
 # User query form
 class Queryform(forms.ModelForm):
-    email = forms.EmailField(label='',widget=forms.EmailInput(attrs={'placeholder':_('Email'),'class':'form-control'}),validators=[validate_email])       
+    email = forms.EmailField(label='',widget=forms.EmailInput(attrs={'placeholder':_('Email'),'class':'form-control'}))       
     class Meta:
         model = Contact
         fields = ('Name','message',)
@@ -47,9 +44,9 @@ class Queryform(forms.ModelForm):
 
 #Signup form
 class Signupform(forms.ModelForm):
-    email = forms.EmailField(label='',widget=forms.EmailInput(attrs={'placeholder':_('Email'),'class':'form-control'}),validators=[validate_email])       
+    email = forms.EmailField(label='',widget=forms.EmailInput(attrs={'placeholder':_('Email'),'class':'form-control'}))       
     password = forms.CharField(label = '',max_length=15,min_length=8,help_text=_("Password must be atleast 8 characters."),
-                              widget=forms.PasswordInput(attrs={'placeholder':_('password'),'class':'form-control'}),validators=[validate_password])
+                              widget=forms.PasswordInput(attrs={'placeholder':_('password'),'class':'form-control'}))
     confirm_password = forms.CharField(label = '',max_length=15,min_length=8,help_text=_("Password and confirm password must be same."),
                                      widget=forms.PasswordInput(attrs={'placeholder':_('confirm password'),'class':'form-control'}))
     class Meta():
@@ -84,7 +81,7 @@ class Userupdateform(forms.ModelForm):
 
 # Email form for password change
 class Emailform(forms.Form):
-    email = forms.EmailField(label='',widget=forms.EmailInput(attrs={'placeholder':'Enter the email','class':'form-control'}),validators=[validate_email])       
+    email = forms.EmailField(label='',widget=forms.EmailInput(attrs={'placeholder':'Enter the email','class':'form-control'}))       
 
 # User image upload form
 class Userimgform(forms.Form):
@@ -93,6 +90,6 @@ class Userimgform(forms.Form):
 #Password change form
 class PasswordChangeForm(forms.Form):
     password = forms.CharField(label='', help_text="Password must be atleast 8 characters, should contain alphnumeric and special characters.",
-                                max_length=15,min_length=8,widget=forms.PasswordInput(attrs={'placeholder':'Password', 'class':"form-control"}),validators=[validate_password])
+                                max_length=15,min_length=8,widget=forms.PasswordInput(attrs={'placeholder':'Password', 'class':"form-control"}))
     confirm_password = forms.CharField(label='',help_text="Password and confirm password must be same.",
                                 max_length=15,min_length=8,widget=forms.PasswordInput(attrs={'placeholder':'Confirm Password', 'class':"form-control"}))
