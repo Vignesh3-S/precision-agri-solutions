@@ -6,12 +6,12 @@
 {% bootstrap_messages %}
 {% bootstrap_javascript %}
 {% block content %}
-    <style>
-        #proimgbg{
-            background-image:  url('{% static "precisionagri/images/proimg.jpg" %}');
-        }
-    </style>
-    <section class="vh-100">
+<section class="vh-100">
+        <style>
+            #proimgbg{
+                background-image:  url('{% static "precisionagri/images/proimg.jpg" %}');
+            }
+        </style>
         <div class="container-fluid py-5" data-aos="zoom-in-down"data-aos-duration="1500">
             <div class="row justify-content-center">
                 <div class="col-md-7 mt-5" style="border:1.5px solid; border-color:black;box-shadow: 1px 1px 10px 1px rgb(133, 97, 97); background-position: center;background-repeat: no-repeat;background-size: cover;" 
@@ -34,5 +34,5 @@
                 </div>
             </div>
         </div>
-    </section>
+</section>
 {% endblock %}

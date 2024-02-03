@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
-import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
@@ -96,7 +95,7 @@ RECAPTCHA_PRIVATE_KEY= "6LcKsNglAAAAAJHqZJaze5nzZWv_IUgccHGf0_Hg"
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -105,6 +104,17 @@ DATABASES = {
         'PASSWORD':'AVNS_9M2oXLUGleStPjCoWz0', 
         'HOST': 'mysql-7e08941-pas-ver-1.a.aivencloud.com',
         'PORT': '19446',
+    }
+}
+'''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'pasdb',
+        'USER': 'root',
+        'PASSWORD':'Viki@ml36', 
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 # Password validation

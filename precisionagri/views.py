@@ -81,9 +81,10 @@ def otp(request,enc_email):
             messages.success(request,'Enter the OTP sent to your email.')
             return render(request,'precisionagri/otp.html')
         except:
-           return redirect(reverse('signup',messages.error(request,'OTP generate error')),permanent=True)
+            return redirect(reverse('signup',messages.error(request,'OTP generate error')),permanent=True)
     if request.method == "POST":
         otp = request.POST['otp']
+        type(otp)
         user = User.objects.get(email=email)
         if user.otp == otp:
             user.is_account_verified = True
@@ -327,12 +328,17 @@ def Pwd_change_message(request):
 #Password handing part -- change password 
 def Password_change(request,value,time):
     key=request.session.get('pwdkey')
+    print(key)
     dec_key=urlsafe_base64_decode(force_str(key))
+    print(dec_key)
     decrypt_email =  urlsafe_base64_decode(force_str(value)) 
+    print(decrypt_email)
     times = datetime.now()
     time_str = str(times.year)+str(times.month)+str(times.day)+str(times.hour)+str(times.minute)+str(times.second)
     decrypt_time = urlsafe_base64_decode(force_str(time))
-    if dec_key.decode()!=decrypt_email.decode():
+    url_email= decrypt_email.decode()
+    header_email = dec_key.decode()
+    if url_email!= header_email:
         return redirect(reverse('home',messages.error(request,'Invalid Link.')),permanent=True)
     
     if(int(time_str)-int(decrypt_time)) > 300:
@@ -369,7 +375,7 @@ def Password_change(request,value,time):
 @login_required(login_url = 'signin')
 def User_logout(request):
     logout(request)
-    return redirect(reverse('home',messages.info(request,f"Successfully Logout.")))
+    return redirect(reverse('home',messages.info(request,f"Successfully Logout.")),permanent=True)
 
 @login_required(login_url = 'signin')
 def Getapi(request):
