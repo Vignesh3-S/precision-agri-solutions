@@ -5,7 +5,8 @@ from django.utils.translation import gettext_lazy as _
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
 from phonenumber_field.widgets import PhoneNumberPrefixWidget
-
+from django.contrib.auth.password_validation import validate_password
+from django.core import validators
 #Crop form -- Recommend
 class CropRecommendform(forms.ModelForm):
     class Meta:
@@ -46,7 +47,8 @@ class Queryform(forms.ModelForm):
 class Signupform(forms.ModelForm):
     email = forms.EmailField(label='',widget=forms.EmailInput(attrs={'placeholder':_('Email'),'class':'form-control'}))       
     password = forms.CharField(label = '',max_length=15,min_length=8,help_text=_("Password must be atleast 8 characters."),
-                              widget=forms.PasswordInput(attrs={'placeholder':_('password'),'class':'form-control'}))
+                              widget=forms.PasswordInput(attrs={'placeholder':_('password'),'class':'form-control'}),
+                              validators=[validate_password])
     confirm_password = forms.CharField(label = '',max_length=15,min_length=8,help_text=_("Password and confirm password must be same."),
                                      widget=forms.PasswordInput(attrs={'placeholder':_('confirm password'),'class':'form-control'}))
     class Meta():
@@ -90,6 +92,7 @@ class Userimgform(forms.Form):
 #Password change form
 class PasswordChangeForm(forms.Form):
     password = forms.CharField(label='', help_text="Password must be atleast 8 characters, should contain alphnumeric and special characters.",
-                                max_length=15,min_length=8,widget=forms.PasswordInput(attrs={'placeholder':'Password', 'class':"form-control"}))
+                                max_length=15,min_length=8,validators=[validate_password],
+                                widget=forms.PasswordInput(attrs={'placeholder':'Password', 'class':"form-control"}))
     confirm_password = forms.CharField(label='',help_text="Password and confirm password must be same.",
                                 max_length=15,min_length=8,widget=forms.PasswordInput(attrs={'placeholder':'Confirm Password', 'class':"form-control"}))

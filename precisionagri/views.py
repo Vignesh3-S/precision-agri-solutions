@@ -15,11 +15,6 @@ import string
 from datetime import datetime
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from django.contrib.auth.password_validation import validate_password
-from django.core.validators import validate_email
-from agriproject.settings import AUTH_PASSWORD_VALIDATORS
-from django.core.exceptions import ValidationError
-
 # home part
 def Home(request):
     if request.method == 'POST':
@@ -57,11 +52,6 @@ def Signup(request):
             if not check_mobile:
                 return redirect('signup',permanent=True)
             
-            try:
-               validate_password(recv_password,password_validators=AUTH_PASSWORD_VALIDATORS)
-            except ValidationError:
-                return redirect(reverse('signup',messages.error(request,ValidationError)),permanent=True)
-            
             if recv_password != recv_confirm_password:
                 return redirect(reverse('signup',messages.error(request,'Password and Confirm Password mismatched.')),permanent=True)
             
@@ -82,7 +72,7 @@ def otp(request,enc_email):
     email = decrypt_email.decode()
     if request.method == "GET":
         otp = str(random.randint(100000, 999999))
-        if otp:
+        try:
             user = User.objects.get(email=email)
             user.otp = otp
             user.save()
@@ -90,8 +80,8 @@ def otp(request,enc_email):
             send_mail('One Time Password',message,'brsapp33@gmail.com',[email],fail_silently=False)
             messages.success(request,'Enter the OTP sent to your email.')
             return render(request,'precisionagri/otp.html')
-        #except:
-         #   return redirect(reverse('signup',messages.error(request,'OTP generate error')),permanent=True)
+        except:
+           return redirect(reverse('signup',messages.error(request,'OTP generate error')),permanent=True)
     if request.method == "POST":
         otp = request.POST['otp']
         user = User.objects.get(email=email)
@@ -363,10 +353,6 @@ def Password_change(request,value,time):
         if form.is_valid():
             pwd = form.cleaned_data['password']
             confirm_pwd = form.cleaned_data['confirm_password']
-            try:
-               validate_password(pwd,password_validators=AUTH_PASSWORD_VALIDATORS)
-            except ValidationError:
-                return redirect(reverse('signup',messages.error(request,ValidationError)),permanent=True)
             if pwd != confirm_pwd:
                 messages.error(request,'Password and Confirm Password mismatched.')
             user = User.objects.get(email = str_decrypt_email)
