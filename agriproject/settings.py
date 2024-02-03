@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-u1)f0vxgx448%*(ke%!936qs&$nomx#a+-e16_-#jir-*scu0#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -95,7 +95,7 @@ RECAPTCHA_PRIVATE_KEY= "6LcKsNglAAAAAJHqZJaze5nzZWv_IUgccHGf0_Hg"
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-'''
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -106,17 +106,7 @@ DATABASES = {
         'PORT': '19446',
     }
 }
-'''
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'pasdb',
-        'USER': 'root',
-        'PASSWORD':'Viki@ml36', 
-        'HOST': 'localhost',
-        'PORT': '3306',
-    }
-}
+
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
