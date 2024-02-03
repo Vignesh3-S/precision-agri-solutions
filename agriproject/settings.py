@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     # social Providers
     'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.github',
     # Restframework for creating api 
     'rest_framework', 
     'rest_framework.authtoken',
@@ -195,9 +195,9 @@ CLOUDINARY_STORAGE = {
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "17801722881-apjj45mlr6lr75t153i3p5t6dhe4v7k7.apps.googleusercontent.com"
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "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"
 
-# facebook credentials facebook
-SOCIAL_AUTH_FACEBOOK_OAUTH2_KEY = "1440793079838730"
-SOCIAL_AUTH_FACEBOOK_OAUTH2_SECRET = "5bbfcf1561e4f03b1da7b651cd58b652"
+#credentials for github
+SOCIAL_AUTH_GITHUB_KEY = 'f7fab235414e6b51893e'
+SOCIAL_AUTH_GITHUB_SECRET = '7d1d10ff8ad4e33e051d48fa10160ba5efb95c9a'
 
 SITE_ID = 1 
 ACCOUNT_EMAIL_VERIFICATION = "none"
