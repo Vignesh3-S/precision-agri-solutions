@@ -4,7 +4,7 @@ from .form import CropRecommendform,Queryform,Searchform,Loginform,Signupform,Us
 from django.contrib import messages
 from .prediction import cropprediction
 from django.core.mail import send_mail
-from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth import authenticate,login
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
@@ -371,11 +371,6 @@ def Password_change(request,value,time):
             messages.error(request,error)
     return render(request,'precisionagri/pwdchange.html',{'form':PasswordChangeForm})
 
-# user logout
-@login_required(login_url = 'signin')
-def User_logout(request):
-    logout(request)
-    return redirect(reverse('home',messages.info(request,f"Successfully Logout.")),permanent=True)
 
 @login_required(login_url = 'signin')
 def Getapi(request):
