@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.urls import path
 from precisionagri import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('',views.Home,name= 'home'),
@@ -28,7 +29,7 @@ urlpatterns = [
     path('userpassword/<str:value>/<str:time>/',views.Password_change,name = 'pwd'),
     path('userprofile/',views.Profile,name = 'profile'),
     path('useredit/',views.User_edit,name = 'edit'),
-    path('userlogout/',views.User_logout,name = 'logout'),
+    path('logout/',auth_views.LogoutView.as_view(),name = 'logout'),
     path('useractivity/',views.user_Activity,name = 'activity'),
     path('otp/<str:enc_email>/', views.otp, name='otp'),
     path('getotp/', views.Getotp, name='latergetotp'),
