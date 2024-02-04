@@ -99,7 +99,7 @@ RECAPTCHA_PRIVATE_KEY= "6LcKsNglAAAAAJHqZJaze5nzZWv_IUgccHGf0_Hg"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'defaultdb',
+        'NAME': 'precision_agricluture_solutions',
         'USER': 'avnadmin',
         'PASSWORD':'AVNS_9M2oXLUGleStPjCoWz0', 
         'HOST': 'mysql-7e08941-pas-ver-1.a.aivencloud.com',
