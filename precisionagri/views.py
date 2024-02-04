@@ -317,7 +317,6 @@ def Pwd_change_message(request):
                     encrypted_email = urlsafe_base64_encode(force_bytes(email)) 
                     message =f'''Hello this is from Precision Agriculture Solutions. Your can use the below link to change the password of your PAS account. link : '{request.scheme}://{site.domain}/userpassword/{encrypted_email}/{timestamp}/'. Don"t reply to this email.'''
                     send_mail('Email changing link',message,'brsapp33@gmail.com',[email],fail_silently=False)
-                    request.session['pwdkey']=encrypted_email
                     return redirect(reverse('pwdchange',messages.info(request,'Check email and follow the link for changing your password.')),permanent=True)
                 else:
                     return redirect(reverse('pwdchange',messages.error(request,'Invalid Email. This email registered using third party.')),permanent=True)
@@ -327,19 +326,10 @@ def Pwd_change_message(request):
 
 #Password handing part -- change password 
 def Password_change(request,value,time):
-    key=request.session.get('pwdkey')
-    print(key)
-    dec_key=urlsafe_base64_decode(force_str(key))
-    print(dec_key)
     decrypt_email =  urlsafe_base64_decode(force_str(value)) 
-    print(decrypt_email)
     times = datetime.now()
     time_str = str(times.year)+str(times.month)+str(times.day)+str(times.hour)+str(times.minute)+str(times.second)
     decrypt_time = urlsafe_base64_decode(force_str(time))
-    url_email= decrypt_email.decode()
-    header_email = dec_key.decode()
-    if url_email!= header_email:
-        return redirect(reverse('home',messages.error(request,'Invalid Link.')),permanent=True)
     
     if(int(time_str)-int(decrypt_time)) > 300:
         return redirect(reverse('home',messages.error(request,'Link expired.')),permanent=True)
@@ -364,11 +354,10 @@ def Password_change(request,value,time):
             user = User.objects.get(email = str_decrypt_email)
             user.set_password(pwd)
             user.save()
-            request.session['pwdkey']=urlsafe_base64_encode(force_bytes("used"))
             return redirect(reverse('signin',messages.success(request,'password changed successfully.')),permanent=True)
         else:
             error = form.errors
-            messages.error(request,error)
+            return messages.error(request,error)
     return render(request,'precisionagri/pwdchange.html',{'form':PasswordChangeForm})
 
 
