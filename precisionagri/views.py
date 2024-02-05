@@ -380,7 +380,7 @@ def Getapi(request):
 @login_required(login_url="signin")
 def getbooks(request):
     if request.method == "GET":
-        books = requests.get("http://localhost:8001/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/l64sbj15ohrlv4y0glnwjplkjqfy6cqdv5g/")
+        books = requests.get("https://book-reviews-app-ca75.onrender.com/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/l64sbj15ohrlv4y0glnwjplkjqfy6cqdv5g/")
         
         if books.status_code == 200:
             book_data = books.json()
@@ -391,7 +391,7 @@ def getbooks(request):
            return redirect(reverse('home',messages.error(request,'Invalid Token')),permanent=True)
     if request.method == "POST":
         payload = {'search':request.POST.get("search")}
-        books = requests.post("http://localhost:8001/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/l64sbj15ohrlv4y0glnwjplkjqfy6cqdv5g/",data=payload)
+        books = requests.post("https://book-reviews-app-ca75.onrender.com/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/l64sbj15ohrlv4y0glnwjplkjqfy6cqdv5g/",data=payload)
         if books.status_code == 200:
             book_data = books.json()
             return render(request,'precisionagri/book_collection.html',{"data":book_data})
@@ -401,7 +401,7 @@ def getbooks(request):
 @login_required(login_url="signin")
 def playaudio(request,id):
     if request.method == "GET":
-        books = requests.get(f"http://localhost:8001/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/l64sbj15ohrlv4y0glnwjplkjqfy6cqdv5g/{id}/")
+        books = requests.get(f"https://book-reviews-app-ca75.onrender.com/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/l64sbj15ohrlv4y0glnwjplkjqfy6cqdv5g/{id}/")
         if books.status_code == 200:
             book_data = books.json()
             return render(request,'precisionagri/bookplay.html',{"data":book_data})
