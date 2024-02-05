@@ -9,12 +9,13 @@ from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
-import os
+import requests
 import random
 import string
 from datetime import datetime
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
+from django.http import JsonResponse,HttpResponse
 # home part
 def Home(request):
     if request.method == 'POST':
@@ -376,4 +377,35 @@ def Getapi(request):
     if request.method == "GET":
         return render(request,'precisionagri/apiform.html')
 
+@login_required(login_url="signin")
+def getbooks(request):
+    if request.method == "GET":
+        books = requests.get("http://localhost:8001/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/l64sbj15ohrlv4y0glnwjplkjqfy6cqdv5g/")
+        
+        if books.status_code == 200:
+            book_data = books.json()
+            return render(request,'precisionagri/book_collection.html',{"data":book_data})
+        elif books.status_code == 404:
+            return redirect(reverse('home',messages.error(request,'Invalid User')),permanent=True)
+        else:
+           return redirect(reverse('home',messages.error(request,'Invalid Token')),permanent=True)
+    if request.method == "POST":
+        payload = {'search':request.POST.get("search")}
+        books = requests.post("http://localhost:8001/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/l64sbj15ohrlv4y0glnwjplkjqfy6cqdv5g/",data=payload)
+        if books.status_code == 200:
+            book_data = books.json()
+            return render(request,'precisionagri/book_collection.html',{"data":book_data})
+        else:
+            return redirect(reverse('bookreviews',messages.error(request,'Invalid search value')),permanent=True)
 
+@login_required(login_url="signin")
+def playaudio(request,id):
+    if request.method == "GET":
+        books = requests.get(f"http://localhost:8001/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/l64sbj15ohrlv4y0glnwjplkjqfy6cqdv5g/{id}/")
+        if books.status_code == 200:
+            book_data = books.json()
+            return render(request,'precisionagri/bookplay.html',{"data":book_data})
+        elif books.status_code == 404:
+            return redirect(reverse('bookreviews',messages.error(request,'Invalid User')),permanent=True)
+        else:
+           return redirect(reverse('bookreviews',messages.error(request,'Invalid Token')),permanent=True)

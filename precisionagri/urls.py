@@ -34,4 +34,6 @@ urlpatterns = [
     path('otp/<str:enc_email>/', views.otp, name='otp'),
     path('getotp/', views.Getotp, name='latergetotp'),
     path('getapikey/', views.Getapi, name='getapikey'),
+    path('bookreviews/', views.getbooks, name='bookreviews'),
+    path('play/<int:id>/',views.playaudio,name = "playaudio"),
 ]
