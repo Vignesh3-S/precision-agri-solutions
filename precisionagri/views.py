@@ -303,7 +303,7 @@ def User_search(request):
 def Pwd_change_message(request):
     if request.method == "POST":
         time = datetime.now()
-        time_str = str(time.year)+str(time.month)+str(time.day)+str(time.hour)+str(time.minute)+str(time.second)
+        time_str = time.strftime("%Y")+time.strftime("%m")+time.strftime("%d")+time.strftime("%H")+time.strftime("%M")+time.strftime("%S")
         timestamp = urlsafe_base64_encode(force_bytes(time_str))
         site = get_current_site(request)
         form = Emailform(request.POST)
@@ -329,7 +329,7 @@ def Pwd_change_message(request):
 def Password_change(request,value,time):
     decrypt_email =  urlsafe_base64_decode(force_str(value)) 
     times = datetime.now()
-    time_str = str(times.year)+str(times.month)+str(times.day)+str(times.hour)+str(times.minute)+str(times.second)
+    time_str = times.strftime("%Y")+times.strftime("%m")+times.strftime("%d")+times.strftime("%H")+times.strftime("%M")+times.strftime("%S")
     decrypt_time = urlsafe_base64_decode(force_str(time))
     
     if(int(time_str)-int(decrypt_time)) > 300:
