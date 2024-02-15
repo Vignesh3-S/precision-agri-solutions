@@ -25,7 +25,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['https://precision-agricultural-solution.onrender.com','localhost']
 
 
 # Application definition
@@ -92,8 +92,8 @@ WSGI_APPLICATION = 'agriproject.wsgi.application'
 
 #Recaptcha key
 
-RECAPTCHA_PUBLIC_KEY = "6LcKsNglAAAAALIMgjrwzsFTbojqMzx_SUm1qshu"
-RECAPTCHA_PRIVATE_KEY= "6LcKsNglAAAAAJHqZJaze5nzZWv_IUgccHGf0_Hg"
+RECAPTCHA_PUBLIC_KEY = os.getenv('RECAPTCHA_PUBLIC_KEY')
+RECAPTCHA_PRIVATE_KEY= os.getenv('RECAPTCHA_PRIVATE_KEY')
 
 
 # Database
@@ -103,10 +103,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'precision_agricluture_solutions',
-        'USER': 'avnadmin',
-        'PASSWORD':'AVNS_9M2oXLUGleStPjCoWz0', 
-        'HOST': 'mysql-7e08941-pas-ver-1.a.aivencloud.com',
-        'PORT': '19446',
+        'USER': os.getenv('USER'),
+        'PASSWORD':os.getenv('PASSWORD'), 
+        'HOST': os.getenv('HOST'),
+        'PORT': os.getenv('PORT'),
     }
 }
 
@@ -153,11 +153,11 @@ STATIC_ROOT= BASE_DIR / 'static'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = '587'
-EMAIL_HOST_USER = 'brsapp33@gmail.com'
-EMAIL_HOST_PASSWORD = 'sqkeczqcyydloipa'
-EMAIL_USE_TLS = 'True'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
 
 
 LOGOUT_REDIRECT_URL = 'home'
@@ -180,17 +180,17 @@ MEDIA_ROOT =  BASE_DIR / 'media'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dsbweip8p',
-    'API_KEY': '519142513189249',
-    'API_SECRET': 'SNTpMXn7osyKBUzWEYStwooA7Cg',
+    'CLOUD_NAME': os.getenv('CLOUD_NAME'),
+    'API_KEY': os.getenv('API_KEY'),
+    'API_SECRET': os.getenv('API_SECRET'),
 }
 # credentials for google 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "17801722881-apjj45mlr6lr75t153i3p5t6dhe4v7k7.apps.googleusercontent.com"
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "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"
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
 
 #credentials for github
-SOCIAL_AUTH_GITHUB_KEY = 'f7fab235414e6b51893e'
-SOCIAL_AUTH_GITHUB_SECRET = '7d1d10ff8ad4e33e051d48fa10160ba5efb95c9a'
+SOCIAL_AUTH_GITHUB_KEY = os.getenv('SOCIAL_AUTH_GITHUB_KEY')
+SOCIAL_AUTH_GITHUB_SECRET = os.getenv('SOCIAL_AUTH_GITHUB_SECRET')
 
 SITE_ID = 1 
 ACCOUNT_EMAIL_VERIFICATION = "none"
