@@ -36,4 +36,6 @@ urlpatterns = [
     path('getapikey/', views.Getapi, name='getapikey'),
     path('bookreviews/', views.getbooks, name='bookreviews'),
     path('play/<int:id>/',views.playaudio,name = "playaudio"),
+    path('mergeaccount/',views.mergeaccountverify,name = "merge"),
+    path('mergeaccountsuccess/',views.mergeaccount,name = "mergeaccount"),
 ]

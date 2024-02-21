@@ -27,7 +27,8 @@ class CropApi(APIView):
             try:
                 store = Agriculture.objects.get(Nitrogen = nit, Phosphorous = pho, Potassium = pot, Temperature = temp, Humidity = humidity, PH = ph, Rainfall = rain)
                 crop = store.Crop_Label
-                return Response({'crop':crop},status=status.HTTP_200_OK)
+                serialize_store= AgriSerializer(store)
+                return Response({"value":serialize_store.data,'crop':crop},status=status.HTTP_200_OK)
             except:
                 result = cropprediction([nit,pho,pot,temp,humidity,ph,rain])
                 crop = Agriculture.objects.create(user = user ,Nitrogen = nit, Phosphorous = pho, Potassium = pot, Temperature = temp, Humidity = humidity, PH = ph, Rainfall = rain, Crop_Label = result)

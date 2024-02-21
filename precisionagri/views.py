@@ -15,7 +15,6 @@ import string
 from datetime import datetime
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from django.http import JsonResponse,HttpResponse
 # home part
 def Home(request):
     if request.method == 'POST':
@@ -409,3 +408,50 @@ def playaudio(request,id):
             return redirect(reverse('bookreviews',messages.error(request,'Invalid User')),permanent=True)
         else:
            return redirect(reverse('bookreviews',messages.error(request,'Invalid Token')),permanent=True)
+
+# merge account verify
+def mergeaccountverify(request):
+    if request.method == "GET":
+        return render(request,'precisionagri/emailmsg.html',{'form':Emailform})
+    elif request.method == "POST":
+        form = Emailform(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            try:
+                user = User.objects.get(email = email)
+            except:
+                return redirect(reverse('merge',messages.error(request,'There is no account with this email. Please give your registered third party email')),permanent=True)
+            if user.is_active == True:
+                if (user.is_PAS_account != True) and (user.is_account_verified != True):
+                    return render(request,'precisionagri/pwdchange.html',{'mform':PasswordChangeForm,'email':email})
+                else:
+                    return redirect(reverse('merge',messages.error(request,'Not a third party account')),permanent=True)
+            else:
+                return redirect(reverse('merge',messages.error(request,'Account deactive. Please contact admin via contact form')),permanent=True)
+
+# merge account success
+def mergeaccount(request):
+    if request.method == "POST":
+        form = PasswordChangeForm(request.POST)
+        if form.is_valid():
+            email = request.POST['email']
+            pwd = form.cleaned_data['password']
+            confirm_pwd = form.cleaned_data['confirm_password']
+            if pwd != confirm_pwd:
+                return redirect(reverse('merge',messages.error(request,'Password and Confirm Password mismatched.')),permanent=True)
+            try:
+                user = User.objects.get(email = email)
+            except:
+                return redirect(reverse('merge',messages.error(request,'There is no account with this email. Please give your registered third party email')),permanent=True)
+            if user.is_active == True:
+                if user.is_PAS_account != True:
+                    user.is_PAS_account = True
+                    user.is_account_verified = True
+                    user.set_password(pwd)
+                    user.save()
+                    return redirect(reverse('home',messages.success(request,'successfully merged')),permanent=True)
+                else:
+                    return redirect(reverse('merge',messages.error(request,'Not a third party account')),permanent=True)
+            else:
+                return redirect(reverse('merge',messages.error(request,'Account deactive. Please contact admin via contact form')),permanent=True)
+  
