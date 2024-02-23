@@ -33,6 +33,9 @@ class CropApi(APIView):
                 result = cropprediction([nit,pho,pot,temp,humidity,ph,rain])
                 crop = Agriculture.objects.create(user = user ,Nitrogen = nit, Phosphorous = pho, Potassium = pot, Temperature = temp, Humidity = humidity, PH = ph, Rainfall = rain, Crop_Label = result)
                 crop.save()
-                return Response({'crop':result,'n':nit,'p':pho,'k':pot,'t':temp,'h':humidity,'ph':ph,'r':rain},status=status.HTTP_200_OK)
+                store = Agriculture.objects.get(Nitrogen = nit, Phosphorous = pho, Potassium = pot, Temperature = temp, Humidity = humidity, PH = ph, Rainfall = rain)
+                crop = store.Crop_Label
+                serialize_store= AgriSerializer(store)
+                return Response({"value":serialize_store.data,'crop':crop},status=status.HTTP_200_OK)
         else:
             return Response({"error":"Invalid Token"},status=status.HTTP_400_BAD_REQUEST)
