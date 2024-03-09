@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_bootstrap5', # bootstrap
+    'django_bootstrap5', # bootstrap 
     'precisionagri', # pas
     'django_recaptcha', # captcha 
     # for third party
