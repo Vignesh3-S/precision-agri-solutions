@@ -6,7 +6,7 @@ from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
 from phonenumber_field.widgets import PhoneNumberPrefixWidget
 from django.contrib.auth.password_validation import validate_password
-from django.core import validators
+
 #Crop form -- Recommend
 class CropRecommendform(forms.ModelForm):
     class Meta:

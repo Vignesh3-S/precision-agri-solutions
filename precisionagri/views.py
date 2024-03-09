@@ -244,6 +244,10 @@ def Crop(request):
             rain = float(request.POST['Rainfall'])
             if (nit < 0 or pho < 0 or pot < 0 or temp < 0 or humidity < 0 or ph < 0 or rain < 0):
                 return redirect(reverse('form',messages.error(request,'Input values must be a positive number.')),permanent=True)
+            if (nit == 0 or pho == 0 or pot == 0 or temp == 0 or humidity == 0 or ph == 0 or rain == 0):
+                return redirect(reverse('form',messages.error(request,'Input values must be greater than zero.')),permanent=True)
+            if (len(str(nit)) > 25 or len(str(pho)) > 25 or len(str(pot)) > 25 or len(str(temp)) > 25 or len(str(humidity)) > 25 or len(str(ph)) > 25 or len(str(rain)) > 25):
+                return redirect(reverse('form',messages.error(request,'Input values length must be within or equal to 25.')),permanent=True)
             store = Agriculture.objects.filter(Nitrogen = nit, Phosphorous = pho, Potassium = pot, Temperature = temp, Humidity = humidity, PH = ph, Rainfall = rain)
             n=urlsafe_base64_encode(force_bytes(nit))
             p=urlsafe_base64_encode(force_bytes(pho))
