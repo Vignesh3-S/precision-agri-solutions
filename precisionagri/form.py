@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import TextInput,NumberInput,Textarea
-from .models import Contact,User,Agriculture
+from .models import Contact,User,Agriculture,ApiUser
 from django.utils.translation import gettext_lazy as _
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
@@ -96,3 +96,16 @@ class PasswordChangeForm(forms.Form):
                                 widget=forms.PasswordInput(attrs={'placeholder':'Password', 'class':"form-control"}))
     confirm_password = forms.CharField(label='',help_text="Password and confirm password must be same.",
                                 max_length=15,min_length=8,widget=forms.PasswordInput(attrs={'placeholder':'Confirm Password', 'class':"form-control"}))
+
+# Forgot API Form
+class ForgotApiForm(forms.ModelForm):
+    password = forms.CharField(label='',max_length=15,min_length=8,widget=forms.PasswordInput(attrs={'placeholder':'Password', 'class':"form-control"}))
+    class Meta():
+        model = ApiUser
+        fields = ('app_type','app_name',)
+        labels = {'app_type':(""),'app_name':(""),}
+        widgets = {
+            'app_type' : TextInput(attrs={'placeholder':_("Application Type"),'class' :'form-control'}),
+            'app_name' : TextInput(attrs={'placeholder':_("Application Name"),'class' :'form-control'}),
+        }
+        

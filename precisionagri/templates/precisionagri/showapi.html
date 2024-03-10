@@ -1,12 +1,12 @@
 {% extends 'precisionagri/index.html' %}
-{% block title %} PAS user profile {% endblock title %}
+{% block title %} PAS API info {% endblock title %}
 {% load static %}
 {% load django_bootstrap5 %}
 {% bootstrap_css %}
 {% bootstrap_messages %}
 {% bootstrap_javascript %}
 {% block content %}
-<section class="h-100">
+<section class="vh-100">
     <style>
         #srbg{
             background-image: url('{% static "precisionagri/images/proimg.jpg" %}');
@@ -26,6 +26,11 @@
               <div class="card-body p-4">
                 <h6>API Information</h6>
                 <hr class="mt-0 mb-4">
+                {% if value %}
+                  <p>Hello {{username}},</p>
+                  <p>Your API token : <span style="color: rgb(22, 14, 133);"> {{value}}</span> </p>
+                  <p>The url :<span style="color: rgb(28, 28, 122);"> {{url}}</span></p>
+                {% else %}
                 <p>Hello {{name}},</p>
                 <p>Don't refresh the page and do copy paste the url and token to another file. 
                   This Information shows to the user only once.</p> 
@@ -39,6 +44,7 @@
                     those values (nitrogen, phosphorus, potassium, temperature, ph, humidity, rainfall) with the above *specified name. 
                   </p>
                   <p>post request format : url/api_token/</p>
+                  {% endif %}
               </div>
             </div>
           </div>

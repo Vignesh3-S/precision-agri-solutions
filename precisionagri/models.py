@@ -34,6 +34,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     is_account_verified = models.BooleanField(default = False)
     is_api_token_obtained = models.BooleanField(default = False)
     otp = models.CharField(verbose_name="OTP",max_length=6)
+    count = models.IntegerField(verbose_name="API Count",default=0)
     
     objects = UsersManager()
     
@@ -88,8 +89,8 @@ class Contact(models.Model):
     
 class ApiUser(models.Model):
     user = models.OneToOneField(User,on_delete=models.SET_NULL,verbose_name="User",related_name="apiuser",null=True)
-    app_name =  models.CharField(max_length=100,verbose_name="App Name",default="app name")
-    app_type =  models.CharField(max_length=100,verbose_name="App Type",default="app type")
+    app_name =  models.CharField(max_length=100,verbose_name="App Name")
+    app_type =  models.CharField(max_length=100,verbose_name="App Type")
     apikey = models.CharField(max_length=100,verbose_name="Apitoken")
     token_valid = models.BooleanField(default=False,verbose_name ="Token validity")
     date = models.DateTimeField(auto_now_add=True,verbose_name="Date and Time",null=True)

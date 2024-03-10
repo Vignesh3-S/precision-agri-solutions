@@ -20,6 +20,7 @@ class CustomUserAdmin(UserAdmin):
         ("Authentiction Details", {"fields": ("email","password")}),
         ("Permissions", {"fields": ("is_staff", "is_active","is_superuser","is_account_verified","is_PAS_account","is_api_token_obtained", "groups", "user_permissions")}),
         ("Important Dates", {"fields": ("date_joined","date_updated","last_login")}),
+        ("API Information", {"fields": ("count",)}),
     )
     add_fieldsets = (
         (None, {
