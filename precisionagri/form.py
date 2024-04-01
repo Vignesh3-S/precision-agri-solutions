@@ -109,3 +109,8 @@ class ForgotApiForm(forms.ModelForm):
             'app_name' : TextInput(attrs={'placeholder':_("Application Name"),'class' :'form-control'}),
         }
         
+# form for api feedback
+class FeedbackForm(forms.Form):
+    name = forms.CharField(label='',max_length=30,widget=forms.TextInput(attrs={'placeholder':_('Name'), 'class':"form-control"}))
+    feedback = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder':_('Feedback'), 'class':"form-control"}))
+    

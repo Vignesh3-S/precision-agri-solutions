@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from .models import Agriculture,NPK,User,Search,ApiUser
 from .form import (CropRecommendform,Queryform,Searchform,Loginform,Signupform,
-                    Userimgform,Userupdateform,PasswordChangeForm,Emailform,ForgotApiForm)
+                    Userimgform,Userupdateform,PasswordChangeForm,Emailform,ForgotApiForm,FeedbackForm)
 from django.contrib import messages
 from .prediction import cropprediction
 from django.core.mail import send_mail
@@ -17,6 +17,7 @@ from datetime import datetime
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.hashers import check_password
+from django.http import HttpRequest
 # home part
 def home(request):
     if request.method == 'POST':
@@ -94,15 +95,18 @@ def otp(request,enc_email):
             return redirect(reverse('signin',messages.success(request,'Verifiction Successful')),permanent=True)
         else:
             return redirect(reverse('signup',messages.error(request,'Invalid OTP')),permanent=True)
-# Later otp verifiction
+# Verify Account
 def getotp(request):
     if request.method=='POST':
         form=Emailform(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
-            user = User.objects.get(email = email)
+            try:
+                user = User.objects.get(email = email)
+            except:
+                return redirect(reverse('signup',messages.error(request,"Account not Registered. Please signup first.")))
             if not user.is_PAS_account:
-                return redirect(reverse('signup',messages.info(request,"Google, Facebook accounts not need to be verify.")))
+                return redirect(reverse('signup',messages.info(request,"Third party accounts not need to be verify.")))
             if not user.is_account_verified:
                 encode_email = urlsafe_base64_encode(force_bytes(email))
                 return redirect('otp',encode_email,permanent=True)
@@ -381,7 +385,7 @@ def getapi(request):
             return redirect(reverse('home',messages.info(request,"Already got Apikey")))
     if request.method == "GET":
         user = User.objects.get(email = request.user.email)
-        print(user.count)
+        #print(user.count)
         if user.count < 2:
             return render(request,'precisionagri/apiform.html')
         else:
@@ -437,38 +441,67 @@ def deleteapi(request):
             return redirect(reverse('deleteapi',messages.error(request,form.errors)),permanent=True)
 
 @login_required(login_url="signin")
-def getbooks(request):
+def getbooks(request,id):
     if request.method == "GET":
-        books = requests.get("https://book-reviews-app-ca75.onrender.com/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/oykrsbvsnmv9mzbtgwz736rzmanncg9lqgf/")
-        
-        if books.status_code == 200:
-            book_data = books.json()
-            return render(request,'precisionagri/book_collection.html',{"data":book_data})
-        elif books.status_code == 404:
+        books = requests.get(f" https://book-reviews-app-ca75.onrender.com/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/pz6kx2341p8nac3cjtlzb5ffa7esu1zki6m/?page={id}")
+        if books.status_code == 404:
             return redirect(reverse('home',messages.error(request,'Invalid User')),permanent=True)
         else:
-           return redirect(reverse('home',messages.error(request,'Invalid Token')),permanent=True)
+            res_data = books.json()
+            book_data = res_data['results']
+            next_number = None
+            pre_number = None
+            next_page = str(res_data['next'])
+            pre_page = str(res_data['previous'])
+            if next_page != None:
+                try:
+                    next_page_split = next_page.split("=")
+                    next_number = int(next_page_split[-1])
+                except:
+                    pass
+            if pre_page != None:
+                try:
+                    pre_page_split = pre_page.split("=")
+                    print(pre_page_split)
+                    pre_number = int(pre_page_split[-1])
+                except:
+                    if next_number == None:
+                        pre_number = 1
+                    else:
+                        pre_number = next_number - 2
+            return render(request,'precisionagri/book_collection.html',{"data":book_data,'pag':res_data,'next_no':next_number,'pre_no':pre_number})
     if request.method == "POST":
         payload = {'search':request.POST.get("search")}
-        books = requests.post("https://book-reviews-app-ca75.onrender.com/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/oykrsbvsnmv9mzbtgwz736rzmanncg9lqgf/",data=payload)
+        books = requests.post("https://book-reviews-app-ca75.onrender.com/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/pz6kx2341p8nac3cjtlzb5ffa7esu1zki6m/",data=payload)
         if books.status_code == 200:
             book_data = books.json()
             return render(request,'precisionagri/book_collection.html',{"data":book_data})
         else:
-            return redirect(reverse('bookreviews',messages.error(request,'Invalid search value')),permanent=True)
+            messages.error(request,'Invalid search value')
+            return redirect(reverse('bookreviews',args=(1,)))
 
 @login_required(login_url="signin")
 def playaudio(request,id):
     if request.method == "GET":
-        books = requests.get(f"https://book-reviews-app-ca75.onrender.com/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/oykrsbvsnmv9mzbtgwz736rzmanncg9lqgf/{id}/")
+        books = requests.get(f"https://book-reviews-app-ca75.onrender.com/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/pz6kx2341p8nac3cjtlzb5ffa7esu1zki6m/{id}/")
         if books.status_code == 200:
             book_data = books.json()
-            return render(request,'precisionagri/bookplay.html',{"data":book_data})
+            return render(request,'precisionagri/bookplay.html',{"data":book_data,'form':FeedbackForm})
         elif books.status_code == 404:
-            return redirect(reverse('bookreviews',messages.error(request,'Invalid User')),permanent=True)
+            messages.error(request,'Invalid User')
+            return redirect(reverse('bookreviews',args=(1,)))
         else:
-           return redirect(reverse('bookreviews',messages.error(request,'Invalid Token')),permanent=True)
-
+           messages.error(request,'Invalid Token')
+           return redirect(reverse('bookreviews',args=(1,)))
+    if request.method ==  "POST":
+        payload = {'username':request.POST.get("name"),'feedback':request.POST.get("feedback")}
+        books = requests.post(f"https://book-reviews-app-ca75.onrender.com/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/pz6kx2341p8nac3cjtlzb5ffa7esu1zki6m/{id}/",data=payload)
+        if books.status_code == 201:
+            messages.success(request,'Feedback submitted successfully')
+            return redirect(reverse('bookreviews',args=(1,)))
+        else:
+            messages.error(request,'Invalid data')
+            return redirect(reverse('bookreviews',args=(1,)))
 # merge account verify
 def mergeaccountverify(request):
     if request.method == "GET":
