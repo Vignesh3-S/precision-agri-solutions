@@ -29,10 +29,13 @@ class User(AbstractBaseUser,PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now)
     date_updated = models.DateTimeField(auto_now=True,null=True)
     last_login = models.DateTimeField(verbose_name="Last login",null=True)
-    userimg = models.ImageField(verbose_name='User Image', upload_to="Userimages")
+    userimg = models.ImageField(verbose_name='User Image', upload_to="PASuserimages")
     is_PAS_account = models.BooleanField(default = False)
     is_account_verified = models.BooleanField(default = False)
-    is_token_obtained = models.BooleanField(default = False)
+    is_api_token_obtained = models.BooleanField(default = False)
+    otp = models.CharField(verbose_name="OTP",max_length=6)
+    count = models.IntegerField(verbose_name="API Count",default=0)
+    
     objects = UsersManager()
     
 
@@ -86,7 +89,9 @@ class Contact(models.Model):
     
 class ApiUser(models.Model):
     user = models.OneToOneField(User,on_delete=models.SET_NULL,verbose_name="User",related_name="apiuser",null=True)
-    apikey = models.CharField(max_length=200,verbose_name="Apitoken")
+    app_name =  models.CharField(max_length=100,verbose_name="App Name")
+    app_type =  models.CharField(max_length=100,verbose_name="App Type")
+    apikey = models.CharField(max_length=100,verbose_name="Apitoken")
     token_valid = models.BooleanField(default=False,verbose_name ="Token validity")
     date = models.DateTimeField(auto_now_add=True,verbose_name="Date and Time",null=True)
     

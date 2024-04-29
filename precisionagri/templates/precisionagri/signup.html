@@ -7,82 +7,43 @@
 {% bootstrap_messages %}
 {% bootstrap_javascript %}
 {% block content %}
-<section>
-    <div class="container animate__animated animate__flipInY" style="--animate-duration: 1.5s;">
-      <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col">
-          <div class="card card-registration my-4" style="border:1.5px solid; border-color:black;box-shadow: 2px 2px 2px 2px rgb(63,24,24);">
-            <div class="row g-0">
-              <div class="col-xl-6 animate__animated animate__zoomInLeft animate__delay-1s">
-                <img src="{% static 'precisionagri/images/signupbg.jpg' %}" alt="Sign up photo" class="img-fluid"
-                style="border-top-left-radius: .25rem; border-bottom-left-radius: .25rem;" />
-              </div>
-              <div class="col-xl-6">
-                    <div class="card-body p-md-5 text-black animate__animated animate__zoomInRight  animate__delay-1s" style="--animate-duration: 1.5s;">
-                      {% if later %}                       
-                        <h3 class="mb-5 text-uppercase text-center">Verify Your Account</h3>
-                      {% elif laterotp %}
-                      <h3 class="mb-5 text-uppercase text-center">Verify OTP</h3>
-                      {% else %}
-                        <h3 class="mb-5 text-uppercase text-center">Create an Account</h3>
-                      {% endif %}
-                                <div class="row">
-                                    <div class="col-md mb-4">
-                                      {% if later %}
-                                      <form method="post" class="mt-3">
-                                        {% csrf_token %}
-                                        {% bootstrap_form form2 %}
-                                        <div class="d-flex justify-content-end pt-3">
-                                          <button type="reset" class="btn btn-secondary btn-lg">Reset</button>
-                                          <button type="submit" class="btn btn-success btn-lg ms-2">Generate OTP</button>
-                                        </div>
-                                      </form>
-                                      {% elif laterotp %}
-                                      <form method="post" class="mt-3" action="{% url 'verifyotp' %}">
-                                        {% csrf_token %}
-                                        <input type="text" placeholder="Enter OTP" name = "otp" required class="form-control"><br>
-                                        <div class="d-flex justify-content-end pt-3">
-                                          <button type="reset" class="btn btn-secondary btn-lg">Reset</button>
-                                          <button type="submit" class="btn btn-success btn-lg ms-2">Submit</button>
-                                        </div>
-                                      </form>
-                                      {% else %}
-                                      <form method="post" class="mt-3">
-                                        {% csrf_token %}
-                                        <div class="form-outline">
-                                            {% bootstrap_form form %}
-                                        </div>
-                                        <div class="d-flex justify-content-end pt-3">
-                                          <button type="reset" class="btn btn-secondary btn-lg">Reset all</button>
-                                          <button type="submit" class="btn btn-success btn-lg ms-2">Generate otp</button>
-                                        </div>
-                                      </form>
-                                      {% endif %}
-                                    </div>
-                                </div>
-                            <div>
-                              <div class="mt-4 text-center">
-                                <p>or continue with...</p>
-                                <a href="{% provider_login_url 'google' %}" type="button" class="btn btn-link btn-floating mx-1">
-                                  <i class="fa-brands fa-google fa-beat-fade"></i>
-                                </a>
-                
-                                <a href="{% provider_login_url 'facebook' %}" type="button" class="btn btn-link btn-floating mx-1">
-                                  <i class="fa-brands fa-facebook fa-beat-fade"></i>
-                                </a>
-                              </div>
-                              <div class="d-grid mt-2 pt-3">
-                                  <a href="{% url 'signin' %}" class="btn btn-primary" type="button">Already Registered go to login</a> <br>
-                                  <a href="{% url 'latergetotp' %}" class="btn btn-primary" type="button">Already Registered Get Otp for verification</a>
-                              </div>
-                            </div>
-                    </div>
-              </div>
+  <section class="animate__animated animate__zoomInUp" style="--animate-duration: 1s;">
+    <div class="container py-5"> 
+      <div class="row d-flex align-items-center justify-content-center">
+        <div class="col-md col-lg-10 col-xl-10"
+        style="background-color:white;border-radius:10px">
+          <form method="post">
+            <input type="hidden" name= "next" value={{request.GET.next}}>
+            {% csrf_token %}
+            <h3 class="mb-4 mt-4 text-center">CREATE AN ACCOUNT</h3>
+            <div class="form-outline mb-4">
+              {% bootstrap_form form %}
             </div>
-          </div>
+            <div>
+              <div class="d-grid gap-2 col-6 mx-auto">
+                <button class="btn btn-secondary" type="rest">Reset all</button>
+                <button class="btn btn-success" type="submit">Create account</button>
+              </div>
+              <p class="text-center fw-bold mx-3 mb-0 text-muted mt-2">or continue with</p>
+              <div class="mt-4 text-center">
+                <a href="{% provider_login_url 'google' %}" type="button" class="btn btn-link btn-floating mx-1">
+                  <i class="fa-brands fa-google fa-beat-fade"></i>
+                </a>
+  
+                <a href="{% provider_login_url 'github' %}" type="button" class="btn btn-link btn-floating mx-1">
+                  <i class="fa-brands fa-github fa-beat-fade"></i>
+                </a>
+              </div> 
+              <div class="d-grid gap-2 col-6 mx-auto"> <br>
+                <a href="{% url 'latergetotp' %}"class="btn btn-primary" type="rest">Verify Account</a>
+                <a href="{% url 'signin' %}" class="btn btn-primary" type="submit">Already Registered</a>
+                <a href="{% url 'merge' %}" class="btn btn-primary" type="submit">Merge my third party account with PAS </a>
+              </div> <br>
+            </div>
+          </form> 
         </div>
       </div>
-    </div>
-  </section>
+    </div> 
+  </section> <br>
   
 {% endblock content %}

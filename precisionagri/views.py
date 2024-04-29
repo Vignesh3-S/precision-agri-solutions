@@ -1,25 +1,25 @@
 from django.shortcuts import render,redirect
 from .models import Agriculture,NPK,User,Search,ApiUser
-from .form import CropRecommendform,Queryform,Searchform,Loginform,Signupform,Userimgform,Userupdateform,PasswordChangeForm,Emailform
+from .form import (CropRecommendform,Queryform,Searchform,Loginform,Signupform,
+                    Userimgform,Userupdateform,PasswordChangeForm,Emailform,ForgotApiForm,FeedbackForm)
 from django.contrib import messages
 from .prediction import cropprediction
 from django.core.mail import send_mail
-from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth import authenticate,login
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
-import os
+import requests
 import random
 import string
-import phonenumbers
-from twilio.rest import Client
-from agriproject import settings
 from datetime import datetime
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.hashers import check_password
+from django.http import HttpRequest
 # home part
-def Home(request):
+def home(request):
     if request.method == 'POST':
        form = Queryform(request.POST)
        name = request.POST['Name']
@@ -40,7 +40,7 @@ def Home(request):
         return render(request,'precisionagri/home.html',{'query':Queryform})
 
 # Registration part
-def Signup(request):
+def signup(request):
     if request.method == 'POST':
         form = Signupform(request.POST)
         if form.is_valid():
@@ -62,26 +62,63 @@ def Signup(request):
             user.set_password(recv_password)
             user.is_PAS_account = True
             user.save()
-            
-            try:
-                otp=request.POST["otp"]
-            except:
-                number_prefix = "+"+ str(phonenumbers.country_code_for_region(recv_mobile_0))
-                mobile = number_prefix + check_mobile
-                getotp = generateotp(request,mobile,email)
-                if getotp:
-                    messages.success(request,"Enter the OTP that has been sent to your mobile number.")
-                    return render(request,'precisionagri/signup.html',{'laterotp':True})
-                else:
-                    return redirect(reverse('signup',messages.error(request,"Try again !")),permanent=True)
-            return redirect(reverse('signup',messages.success(request,'Successfully Created')),permanent=True)
+            encode_email = urlsafe_base64_encode(force_bytes(email))
+            return redirect('otp',encode_email,permanent=True)
         else:
             error = form.errors 
             return redirect(reverse('signup',messages.error(request,error)),permanent=True)
     return render(request,'precisionagri/signup.html',{'form':Signupform})
 
+# Generate otp
+def otp(request,enc_email):
+    decrypt_email =  urlsafe_base64_decode(force_str(enc_email))
+    email = decrypt_email.decode()
+    if request.method == "GET":
+        otp = str(random.randint(100000, 999999))
+        try:
+            user = User.objects.get(email=email)
+            user.otp = otp
+            user.save()
+            message =f'Hello this is from Precision Agriculture Solutions. This is your otp {otp}.'
+            send_mail('One Time Password',message,'brsapp33@gmail.com',[email],fail_silently=False)
+            messages.success(request,'Enter the OTP sent to your email.')
+            return render(request,'precisionagri/otp.html')
+        except:
+            return redirect(reverse('signup',messages.error(request,'OTP generate error')),permanent=True)
+    if request.method == "POST":
+        otp = request.POST['otp']
+        type(otp)
+        user = User.objects.get(email=email)
+        if user.otp == otp:
+            user.is_account_verified = True
+            user.save()
+            return redirect(reverse('signin',messages.success(request,'Verifiction Successful')),permanent=True)
+        else:
+            return redirect(reverse('signup',messages.error(request,'Invalid OTP')),permanent=True)
+# Verify Account
+def getotp(request):
+    if request.method=='POST':
+        form=Emailform(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            try:
+                user = User.objects.get(email = email)
+            except:
+                return redirect(reverse('signup',messages.error(request,"Account not Registered. Please signup first.")))
+            if not user.is_PAS_account:
+                return redirect(reverse('signup',messages.info(request,"Third party accounts not need to be verify.")))
+            if not user.is_account_verified:
+                encode_email = urlsafe_base64_encode(force_bytes(email))
+                return redirect('otp',encode_email,permanent=True)
+            else:
+                return redirect(reverse('home',messages.info(request,"This account already verified.")))
+        else:
+            error = form.errors
+            return redirect(reverse('latergetotp',messages.error(request,error)))
+    return render(request,'precisionagri/pwdchange.html',{'form2':Emailform})
+
 # mobile number validate
-def Mobile_validate(request,mobile):
+def mobile_validate(request,mobile):
     if mobile[0] == '0':
         mobile= mobile[1:]
 
@@ -92,7 +129,7 @@ def Mobile_validate(request,mobile):
         return mobile
 
 #login part
-def Signin(request):
+def signin(request):
     if request.method == "GET":
         if request.user.is_authenticated:
             return redirect(reverse('home',messages.error(request,"Account already signed in.")),permanent=True)
@@ -102,7 +139,6 @@ def Signin(request):
             useremail = form.cleaned_data['email']
             userpwd = form.cleaned_data['password']
             next = request.POST['next']
-            print(next)
             try:
                 user = User.objects.get(email = useremail)                    
                 if not user.is_account_verified:
@@ -113,8 +149,7 @@ def Signin(request):
                     person = authenticate(request,email = useremail,password = userpwd)
                     if person is not None:
                         login(request,person)
-                        
-                        if next :
+                        if next:
                             return redirect(next,permanent=True)
                         if user.is_superuser:
                             return redirect('/pasadmin/',permanent=True)
@@ -133,7 +168,7 @@ def Signin(request):
 
 # view profile
 @login_required(login_url = 'signin')
-def Profile(request):
+def profile(request):
     if request.method == "GET":
         user = User.objects.get(email = request.user.email)
         if user.userimg:
@@ -146,7 +181,7 @@ def Profile(request):
     
 # Edit profile
 @login_required(login_url = 'signin')
-def User_edit(request):
+def user_edit(request):
     if request.method == 'POST':
         form = Userupdateform(request.POST)
         if form.is_valid():
@@ -181,13 +216,13 @@ def user_Activity(request):
 
 # User Image Change
 @login_required(login_url = 'signin')
-def Img_change(request):
+def img_change(request):
     if request.method == 'POST':
         form = Userimgform(request.FILES)
         if form.is_valid():
             user = User.objects.get(email = request.user.email)
             if user.userimg:
-                os.remove(user.userimg.path)
+                user.userimg.delete()
                 user.userimg = request.FILES['image']
                 user.save()
             else:
@@ -201,7 +236,7 @@ def Img_change(request):
 
 # crop recommend form part
 @login_required(login_url = 'signin')
-def Crop(request):
+def crop(request):
     context = {'agriform':CropRecommendform}
     if request.method == "POST":
         form = CropRecommendform(request.POST)
@@ -215,6 +250,10 @@ def Crop(request):
             rain = float(request.POST['Rainfall'])
             if (nit < 0 or pho < 0 or pot < 0 or temp < 0 or humidity < 0 or ph < 0 or rain < 0):
                 return redirect(reverse('form',messages.error(request,'Input values must be a positive number.')),permanent=True)
+            if (nit == 0 or pho == 0 or pot == 0 or temp == 0 or humidity == 0 or ph == 0 or rain == 0):
+                return redirect(reverse('form',messages.error(request,'Input values must be greater than zero.')),permanent=True)
+            if (len(str(nit)) > 25 or len(str(pho)) > 25 or len(str(pot)) > 25 or len(str(temp)) > 25 or len(str(humidity)) > 25 or len(str(ph)) > 25 or len(str(rain)) > 25):
+                return redirect(reverse('form',messages.error(request,'Input values length must be within or equal to 25.')),permanent=True)
             store = Agriculture.objects.filter(Nitrogen = nit, Phosphorous = pho, Potassium = pot, Temperature = temp, Humidity = humidity, PH = ph, Rainfall = rain)
             n=urlsafe_base64_encode(force_bytes(nit))
             p=urlsafe_base64_encode(force_bytes(pho))
@@ -238,7 +277,7 @@ def Crop(request):
 
 # Crop Recommend Result Part
 @login_required(login_url = 'signin')
-def Result(request,crop,n,p,k,t,h,phv,r):
+def result(request,crop,n,p,k,t,h,phv,r):
     crop=urlsafe_base64_decode(force_str(crop))
     crop_decode=crop.decode()
     n=float(urlsafe_base64_decode(force_str(n)))
@@ -253,7 +292,7 @@ def Result(request,crop,n,p,k,t,h,phv,r):
 
 # Crop NPK Search
 @login_required(login_url = 'signin')
-def User_search(request):
+def user_search(request):
     if request.method == 'POST':
         query = request.POST['search']
         querylower = query.lower()
@@ -270,10 +309,10 @@ def User_search(request):
     return render(request,'precisionagri/search.html',{'forms':Searchform})
 
 # Password handling part -- Message sending
-def Pwd_change_message(request):
+def pwd_change_message(request):
     if request.method == "POST":
         time = datetime.now()
-        time_str = str(time.year)+str(time.month)+str(time.day)+str(time.hour)+str(time.minute)+str(time.second)
+        time_str = time.strftime("%Y")+time.strftime("%m")+time.strftime("%d")+time.strftime("%H")+time.strftime("%M")+time.strftime("%S")
         timestamp = urlsafe_base64_encode(force_bytes(time_str))
         site = get_current_site(request)
         form = Emailform(request.POST)
@@ -288,7 +327,6 @@ def Pwd_change_message(request):
                     encrypted_email = urlsafe_base64_encode(force_bytes(email)) 
                     message =f'''Hello this is from Precision Agriculture Solutions. Your can use the below link to change the password of your PAS account. link : '{request.scheme}://{site.domain}/userpassword/{encrypted_email}/{timestamp}/'. Don"t reply to this email.'''
                     send_mail('Email changing link',message,'brsapp33@gmail.com',[email],fail_silently=False)
-                    request.session['pwdkey']=encrypted_email
                     return redirect(reverse('pwdchange',messages.info(request,'Check email and follow the link for changing your password.')),permanent=True)
                 else:
                     return redirect(reverse('pwdchange',messages.error(request,'Invalid Email. This email registered using third party.')),permanent=True)
@@ -297,15 +335,11 @@ def Pwd_change_message(request):
     return render(request,'precisionagri/emailmsg.html',{'form':Emailform})
 
 #Password handing part -- change password 
-def Password_change(request,value,time):
-    key=request.session.get('pwdkey')
-    dec_key=urlsafe_base64_decode(force_str(key))
+def password_change(request,value,time):
     decrypt_email =  urlsafe_base64_decode(force_str(value)) 
     times = datetime.now()
-    time_str = str(times.year)+str(times.month)+str(times.day)+str(times.hour)+str(times.minute)+str(times.second)
+    time_str = times.strftime("%Y")+times.strftime("%m")+times.strftime("%d")+times.strftime("%H")+times.strftime("%M")+times.strftime("%S")
     decrypt_time = urlsafe_base64_decode(force_str(time))
-    if dec_key.decode()!=decrypt_email.decode():
-        return redirect(reverse('home',messages.error(request,'Invalid Link.')),permanent=True)
     
     if(int(time_str)-int(decrypt_time)) > 300:
         return redirect(reverse('home',messages.error(request,'Link expired.')),permanent=True)
@@ -330,86 +364,187 @@ def Password_change(request,value,time):
             user = User.objects.get(email = str_decrypt_email)
             user.set_password(pwd)
             user.save()
-            request.session['pwdkey']=urlsafe_base64_encode(force_bytes("used"))
             return redirect(reverse('signin',messages.success(request,'password changed successfully.')),permanent=True)
         else:
             error = form.errors
-            messages.error(request,error)
+            return messages.error(request,error)
     return render(request,'precisionagri/pwdchange.html',{'form':PasswordChangeForm})
 
-# Generate otp
-def generateotp(request,mobile,email):
-    otp = str(random.randint(100000, 999999))
-    client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-    message = client.messages.create(
-        body=f'Your OTP is: {otp}',
-        from_=settings.TWILIO_PHONE_NUMBER,
-        to= mobile
-    )
-    request.session['otp'] = otp
-    request.session['email'] = email
-    return True
 
-# otp verification
-def Verifyotp(request):
-    if request.method == 'POST':
-        otp=request.POST["otp"]
-        saved_otp = request.session.get('otp')
-        email = request.session.get('email')
-        if otp == saved_otp:
-            user = User.objects.get(email=email)
-            user.is_account_verified = True
-            user.save()
-            messages.success(request, "OTP verification successful")
-            return redirect('signin')
+@login_required(login_url = 'signin')
+def getapi(request):
+    if request.method == "POST":
+        encode_email = urlsafe_base64_encode(force_bytes(request.user.email))
+        key = ''.join(random.choices(string.ascii_lowercase +string.digits, k=35))
+        apikey = f'{request.scheme}://{request.get_host()}/getapicrop/{encode_email}/'
+        try:
+            usercreate = ApiUser.objects.create(user=request.user,apikey=key,app_name=request.POST['app_name'],app_type=request.POST['app_type'],token_valid=True)
+            usercreate.save()
+            return render(request,'precisionagri/showapi.html',{'url':apikey,'token':key,'name':request.user})
+        except:
+            return redirect(reverse('home',messages.info(request,"Already got Apikey")))
+    if request.method == "GET":
+        user = User.objects.get(email = request.user.email)
+        #print(user.count)
+        if user.count < 2:
+            return render(request,'precisionagri/apiform.html')
         else:
-            messages.error(request,"Invalid OTP")
-            return render(request,'precisionagri/signup.html',{'laterotp':True})
-    else:
-        return render(request,'precisionagri/signup.html',{'laterotp':True})
+            return redirect(reverse('home',messages.info(request,"Sorry!, Maximum count reached")))
+    
+@login_required(login_url="signin")
+def forgotapi(request):
+    if request.method == "GET":
+        return render(request,'precisionagri/forgotapi.html',{'form':ForgotApiForm})
+    if request.method == "POST":
+        form = ForgotApiForm(request.POST)
+        try:
+            user = User.objects.get(email=request.user.email)
+            apiuser = ApiUser.objects.get(user = user.id)
+        except:
+            return redirect(reverse('forgotapi',messages.error(request,'Invalid user')),permanent=True)
+        if form.is_valid():
+            password = form.cleaned_data['password']
+            name = form.cleaned_data['app_name']
+            type = form.cleaned_data['app_type']
+            if (check_password(password,user.password)) and (apiuser.app_type == type) and (apiuser.app_name == name):
+                encode_email = urlsafe_base64_encode(force_bytes(request.user.email))
+                apiurl = f'{request.scheme}://{request.get_host()}/getbookreviews/{encode_email}/'
+                return render(request,'precisionagri/showapi.html',{'value':apiuser.apikey,'url':apiurl,'username':user.username})
+            else:
+                return redirect(reverse('forgotapi',messages.error(request,'Invalid credentials')),permanent=True)
+        else:
+            return redirect(reverse('forgotapi',messages.error(request,form.errors)),permanent=True)
 
-# Later otp verifiction
-def Getotp(request):
-    if request.method=='POST':
-        form=Emailform(request.POST)
+@login_required(login_url="signin")
+def deleteapi(request):
+    if request.method == "GET":
+        return render(request,'precisionagri/deleteapi.html',{'form':ForgotApiForm})
+    if request.method == "POST":
+        form = ForgotApiForm(request.POST)
+        try:
+            user = User.objects.get(email=request.user.email)
+            apiuser = ApiUser.objects.get(user = user.id)
+        except:
+            return redirect(reverse('forgotapi',messages.error(request,'Invalid user')),permanent=True)
+        if form.is_valid():
+            password = form.cleaned_data['password']
+            name = form.cleaned_data['app_name']
+            type = form.cleaned_data['app_type']
+            if (check_password(password,user.password)) and (apiuser.app_type == type) and (apiuser.app_name == name):
+                ApiUser.objects.get(user=user.id,app_name=name,app_type=type).delete()
+                user.count += 1
+                user.save()
+                return redirect(reverse('home',messages.success(request,'API token deleted successfully.')),permanent=True)
+            else:
+                return redirect(reverse('deleteapi',messages.error(request,'Invalid user')),permanent=True)
+        else:
+            return redirect(reverse('deleteapi',messages.error(request,form.errors)),permanent=True)
+
+@login_required(login_url="signin")
+def getbooks(request,id):
+    if request.method == "GET":
+        books = requests.get(f" https://book-reviews-app-ca75.onrender.com/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/pz6kx2341p8nac3cjtlzb5ffa7esu1zki6m/?page={id}")
+        if books.status_code == 404:
+            return redirect(reverse('home',messages.error(request,'Invalid User')),permanent=True)
+        else:
+            res_data = books.json()
+            book_data = res_data['results']
+            next_number = None
+            pre_number = None
+            next_page = str(res_data['next'])
+            pre_page = str(res_data['previous'])
+            if next_page != None:
+                try:
+                    next_page_split = next_page.split("=")
+                    next_number = int(next_page_split[-1])
+                except:
+                    pass
+            if pre_page != None:
+                try:
+                    pre_page_split = pre_page.split("=")
+                    print(pre_page_split)
+                    pre_number = int(pre_page_split[-1])
+                except:
+                    if next_number == None:
+                        pre_number = 1
+                    else:
+                        pre_number = next_number - 2
+            return render(request,'precisionagri/book_collection.html',{"data":book_data,'pag':res_data,'next_no':next_number,'pre_no':pre_number})
+    if request.method == "POST":
+        payload = {'search':request.POST.get("search")}
+        books = requests.post("https://book-reviews-app-ca75.onrender.com/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/pz6kx2341p8nac3cjtlzb5ffa7esu1zki6m/",data=payload)
+        if books.status_code == 200:
+            book_data = books.json()
+            return render(request,'precisionagri/book_collection.html',{"data":book_data})
+        else:
+            messages.error(request,'Invalid search value')
+            return redirect(reverse('bookreviews',args=(1,)))
+
+@login_required(login_url="signin")
+def playaudio(request,id):
+    if request.method == "GET":
+        books = requests.get(f"https://book-reviews-app-ca75.onrender.com/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/pz6kx2341p8nac3cjtlzb5ffa7esu1zki6m/{id}/")
+        if books.status_code == 200:
+            book_data = books.json()
+            return render(request,'precisionagri/bookplay.html',{"data":book_data,'form':FeedbackForm})
+        elif books.status_code == 404:
+            messages.error(request,'Invalid User')
+            return redirect(reverse('bookreviews',args=(1,)))
+        else:
+           messages.error(request,'Invalid Token')
+           return redirect(reverse('bookreviews',args=(1,)))
+    if request.method ==  "POST":
+        payload = {'username':request.POST.get("name"),'feedback':request.POST.get("feedback")}
+        books = requests.post(f"https://book-reviews-app-ca75.onrender.com/getbookreviews/c2FzaWd1cnV2aWduZXNoQGdtYWlsLmNvbQ/pz6kx2341p8nac3cjtlzb5ffa7esu1zki6m/{id}/",data=payload)
+        if books.status_code == 201:
+            messages.success(request,'Feedback submitted successfully')
+            return redirect(reverse('bookreviews',args=(1,)))
+        else:
+            messages.error(request,'Invalid data')
+            return redirect(reverse('bookreviews',args=(1,)))
+# merge account verify
+def mergeaccountverify(request):
+    if request.method == "GET":
+        return render(request,'precisionagri/emailmsg.html',{'form':Emailform})
+    elif request.method == "POST":
+        form = Emailform(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
-            user = User.objects.get(email = email)
-            if user.is_PAS_account == False:
-                return redirect(reverse('signup',messages.info(request,"Google, Facebook accounts not need to be verify.")))
-            else:
-                mobile = user.mobile
-            if user.is_account_verified == False:
-                getotp=generateotp(request,str(mobile),email)
-                if getotp:
-                    messages.success(request,"Enter the OTP that has been sent to your mobile number.")
-                    return render(request,'precisionagri/signup.html',{'laterotp':True})
+            try:
+                user = User.objects.get(email = email)
+            except:
+                return redirect(reverse('merge',messages.error(request,'There is no account with this email. Please give your registered third party email')),permanent=True)
+            if user.is_active == True:
+                if (user.is_PAS_account != True) and (user.is_account_verified != True):
+                    return render(request,'precisionagri/pwdchange.html',{'mform':PasswordChangeForm,'email':email})
                 else:
-                    return redirect(reverse('latergetotp',messages.error(request,"Try again !")))
+                    return redirect(reverse('merge',messages.error(request,'Not a third party account')),permanent=True)
             else:
-                return redirect(reverse('home',messages.info(request,"This account already verified.")))
-        else:
-            error = form.errors
-            return redirect(reverse('latergetotp',messages.error(request,error)))
-    return render(request,'precisionagri/signup.html',{'form2':Emailform,'later':True})
+                return redirect(reverse('merge',messages.error(request,'Account deactive. Please contact admin via contact form')),permanent=True)
 
-# user logout
-@login_required(login_url = 'signin')
-def User_logout(request):
-    logout(request)
-    return redirect(reverse('home',messages.info(request,f"Successfully Logout.")))
-
-@login_required(login_url = 'signin')
-def Getapi(request):
-    get_email=request.user.email
-    encode_email = urlsafe_base64_encode(force_bytes(get_email))
-    key = ''.join(random.choices(string.ascii_lowercase +string.digits, k=35))
-    apikey = f'{request.scheme}://{request.get_host()}/getapicrop/{key}/{encode_email}/'
-    try:
-        usercreate = ApiUser.objects.create(user=request.user,apikey=key,token_valid=True)
-        usercreate.save()
-        return render(request,'precisionagri/showapi.html',{'key':apikey,'name':request.user})
-    except:
-        return redirect(reverse('home',messages.info(request,"Already got Apikey")))
-
-
+# merge account success
+def mergeaccount(request):
+    if request.method == "POST":
+        form = PasswordChangeForm(request.POST)
+        if form.is_valid():
+            email = request.POST['email']
+            pwd = form.cleaned_data['password']
+            confirm_pwd = form.cleaned_data['confirm_password']
+            if pwd != confirm_pwd:
+                return redirect(reverse('merge',messages.error(request,'Password and Confirm Password mismatched.')),permanent=True)
+            try:
+                user = User.objects.get(email = email)
+            except:
+                return redirect(reverse('merge',messages.error(request,'There is no account with this email. Please give your registered third party email')),permanent=True)
+            if user.is_active == True:
+                if user.is_PAS_account != True:
+                    user.is_PAS_account = True
+                    user.is_account_verified = True
+                    user.set_password(pwd)
+                    user.save()
+                    return redirect(reverse('home',messages.success(request,'successfully merged')),permanent=True)
+                else:
+                    return redirect(reverse('merge',messages.error(request,'Not a third party account')),permanent=True)
+            else:
+                return redirect(reverse('merge',messages.error(request,'Account deactive. Please contact admin via contact form')),permanent=True)
+  

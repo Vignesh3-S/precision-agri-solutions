@@ -1,5 +1,5 @@
 {% extends 'precisionagri/index.html' %}
-{% block title %} PAS user profile {% endblock title %}
+{% block title %} PAS API info {% endblock title %}
 {% load static %}
 {% load django_bootstrap5 %}
 {% bootstrap_css %}
@@ -26,14 +26,25 @@
               <div class="card-body p-4">
                 <h6>API Information</h6>
                 <hr class="mt-0 mb-4">
-                <p style="font-family:cursive;">Hello {{name}},</p>
-                <p style="font-family:cursive;">Your can access the crop recommend functionality of PAS application using 
-                    <span style="color: rgb(131, 129, 255);">{{key}}</span> from your application. </p>
-                <p style="font-family:cursive;">Don't refresh the page and do copy paste the url to another file. 
-                    This will be show to the user only once.</p> 
-                <p style="font-family:cursive;">Don't share this url to anyone 
-                    as it contains some personal information of the user.</p> 
-                <p style="font-family:cursive;">This token is valid for one month after that you will need to generate another api token.</p>
+                {% if value %}
+                  <p>Hello {{username}},</p>
+                  <p>Your API token : <span style="color: rgb(22, 14, 133);"> {{value}}</span> </p>
+                  <p>The url :<span style="color: rgb(28, 28, 122);"> {{url}}</span></p>
+                {% else %}
+                <p>Hello {{name}},</p>
+                <p>Don't refresh the page and do copy paste the url and token to another file. 
+                  This Information shows to the user only once.</p> 
+                <p>Your can access the crop recommend functionality of PAS application using 
+                  the below credentials from your application. </p>
+                  <p>Your API token : <span style="color: rgb(22, 14, 133);"> {{token}}</span> </p>
+                  <p>The url :<span style="color: rgb(28, 28, 122);"> {{url}}</span></p>
+                  <p>Before using this RESTful API create a crop form that has fields such as nitrogen, phosphorus, potassium,
+                     temperature, ph, humidity, rainfall to get the required values from the user. </p>
+                  <p>After that make a post request using the above endpoint along with api token, where the post request must contain 
+                    those values (nitrogen, phosphorus, potassium, temperature, ph, humidity, rainfall) with the above *specified name. 
+                  </p>
+                  <p>post request format : url/api_token/</p>
+                  {% endif %}
               </div>
             </div>
           </div>

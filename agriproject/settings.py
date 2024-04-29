@@ -12,13 +12,15 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-u1)f0vxgx448%*(ke%!936qs&$nomx#a+-e16_-#jir-*scu0#'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -35,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_bootstrap5', # bootstrap
+    'django_bootstrap5', # bootstrap 
     'precisionagri', # pas
     'django_recaptcha', # captcha 
     # for third party
@@ -45,17 +47,15 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     # social Providers
     'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.github',
     # Restframework for creating api 
     'rest_framework', 
     'rest_framework.authtoken',
+    # cloudinary
+    'cloudinary_storage',
+    'cloudinary',
 ]
 
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ]
-}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -92,8 +92,8 @@ WSGI_APPLICATION = 'agriproject.wsgi.application'
 
 #Recaptcha key
 
-RECAPTCHA_PUBLIC_KEY = "6LcKsNglAAAAALIMgjrwzsFTbojqMzx_SUm1qshu"
-RECAPTCHA_PRIVATE_KEY= "6LcKsNglAAAAAJHqZJaze5nzZWv_IUgccHGf0_Hg"
+RECAPTCHA_PUBLIC_KEY = os.getenv('RECAPTCHA_PUBLIC_KEY')
+RECAPTCHA_PRIVATE_KEY= os.getenv('RECAPTCHA_PRIVATE_KEY')
 
 
 # Database
@@ -102,13 +102,14 @@ RECAPTCHA_PRIVATE_KEY= "6LcKsNglAAAAAJHqZJaze5nzZWv_IUgccHGf0_Hg"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'railway',
-        'USER': 'root',
-        'PASSWORD':'4bdcDCbgf35ggde45B4C5C4BcDBD1gE-', 
-        'HOST': 'monorail.proxy.rlwy.net',
-        'PORT': '38100',
+        'NAME': 'precision_agricluture_solutions',
+        'USER': os.getenv('USER'),
+        'PASSWORD':os.getenv('PASSWORD'), 
+        'HOST': os.getenv('HOST'),
+        'PORT':"19446",
     }
 }
+
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
@@ -145,20 +146,18 @@ USE_TZ = True
 
 
 STATIC_URL = 'static/'
-STATIC_ROOT=os.path.join(BASE_DIR,'static/')
-MEDIA_URL = 'ml/'
-MEDIA_ROOT = os.path.join(BASE_DIR,'ml/')
+STATIC_ROOT= BASE_DIR / 'static'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = '587'
-EMAIL_HOST_USER = 'brsapp33@gmail.com'
-EMAIL_HOST_PASSWORD = 'sqkeczqcyydloipa'
-EMAIL_USE_TLS = 'True'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
 
 
 LOGOUT_REDIRECT_URL = 'home'
@@ -174,13 +173,24 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
-# credentials for google 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "17801722881-apjj45mlr6lr75t153i3p5t6dhe4v7k7.apps.googleusercontent.com"
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "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"
+# cloudinary configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT =  BASE_DIR / 'media'
 
-# facebook credentials facebook
-SOCIAL_AUTH_FACEBOOK_OAUTH2_KEY = "1440793079838730"
-SOCIAL_AUTH_FACEBOOK_OAUTH2_SECRET = "5bbfcf1561e4f03b1da7b651cd58b652"
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUD_NAME'),
+    'API_KEY': os.getenv('API_KEY'),
+    'API_SECRET': os.getenv('API_SECRET'),
+}
+# credentials for google 
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
+
+#credentials for github
+SOCIAL_AUTH_GITHUB_KEY = os.getenv('SOCIAL_AUTH_GITHUB_KEY')
+SOCIAL_AUTH_GITHUB_SECRET = os.getenv('SOCIAL_AUTH_GITHUB_SECRET')
 
 SITE_ID = 1 
 ACCOUNT_EMAIL_VERIFICATION = "none"
@@ -188,7 +198,7 @@ ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 3
 ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 300
-ACCOUNT_UNIQUE_EMAIL = True
+#ACCOUNT_UNIQUE_EMAIL = True
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'METHOD': 'oauth2',
@@ -213,7 +223,4 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-# twilio credentials part
-TWILIO_ACCOUNT_SID = 'AC4f5299ff9ddabce3f04fe02d195ca8a6'
-TWILIO_AUTH_TOKEN = '9e5b95bd3107d32744010b81444ee1bc'
-TWILIO_PHONE_NUMBER = '+18622440340'
+
