@@ -18,6 +18,18 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.hashers import check_password
 from django.http import HttpRequest
+
+
+# mobile number validate
+def mobile_validate(request,mobile):
+    if mobile[0] == '0':
+        mobile= mobile[1:]
+
+    if (mobile[0] not in ['6','7','8','9']) or (not mobile.isdigit()):
+        messages.error(request,'Enter a valid mobile number.')
+        return False
+    else:
+        return mobile
 # home part
 def home(request):
     if request.method == 'POST':
@@ -117,16 +129,6 @@ def getotp(request):
             return redirect(reverse('latergetotp',messages.error(request,error)))
     return render(request,'precisionagri/pwdchange.html',{'form2':Emailform})
 
-# mobile number validate
-def mobile_validate(request,mobile):
-    if mobile[0] == '0':
-        mobile= mobile[1:]
-
-    if (mobile[0] not in ['6','7','8','9']) or (not mobile.isdigit()):
-        messages.error(request,'Enter a valid mobile number.')
-        return False
-    else:
-        return mobile
 
 #login part
 def signin(request):
@@ -191,7 +193,7 @@ def user_edit(request):
             recv_district = form.cleaned_data['district']
             recv_native = form.cleaned_data['native']
             
-            check_mobile = Mobile_validate(request,recv_mobile_1)
+            check_mobile = mobile_validate(request,recv_mobile_1)
              
             if not check_mobile:
                 return redirect('edit',permanent=True)
@@ -462,7 +464,6 @@ def getbooks(request,id):
             if pre_page != None:
                 try:
                     pre_page_split = pre_page.split("=")
-                    print(pre_page_split)
                     pre_number = int(pre_page_split[-1])
                 except:
                     if next_number == None:
