@@ -17,14 +17,10 @@ from datetime import datetime
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.hashers import check_password
-from django.http import HttpRequest
 
 
 # mobile number validate
 def mobile_validate(request,mobile):
-    if mobile[0] == '0':
-        mobile= mobile[1:]
-
     if (mobile[0] not in ['6','7','8','9']) or (not mobile.isdigit()):
         messages.error(request,'Enter a valid mobile number.')
         return False
@@ -57,12 +53,12 @@ def signup(request):
         form = Signupform(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
-            recv_mobile_0 = request.POST['mobile_0']
+            #recv_mobile_0 = request.POST['mobile_0']
             recv_mobile_1 = request.POST['mobile_1']
             recv_password = form.cleaned_data['password']
             recv_confirm_password = form.cleaned_data['confirm_password']
 
-            check_mobile = Mobile_validate(request,recv_mobile_1)
+            check_mobile = mobile_validate(request,recv_mobile_1)
              
             if not check_mobile:
                 return redirect('signup',permanent=True)
@@ -99,7 +95,7 @@ def otp(request,enc_email):
             return redirect(reverse('signup',messages.error(request,'OTP generate error')),permanent=True)
     if request.method == "POST":
         otp = request.POST['otp']
-        type(otp)
+        #type(otp)
         user = User.objects.get(email=email)
         if user.otp == otp:
             user.is_account_verified = True
